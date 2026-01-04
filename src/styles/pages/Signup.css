@@ -1,0 +1,201 @@
+.signup-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 2rem;
+  background-color: var(--color-bg);
+  overflow: hidden;
+}
+
+/* TOP SECTION */
+.signup-top {
+  flex: 0 0 auto;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* TOP SECTION */
+.signup-top {
+  flex: 0 0 auto;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+  align-self: flex-start;
+}
+
+.back-btn img {
+  width: 24px;
+  height: 24px;
+}
+
+.back-btn:hover:not(:disabled) {
+  opacity: 0.7;
+}
+
+.back-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.signup-image {
+  width: 20rem;
+  height: 20rem;
+  max-width: 100%;
+  border-radius: 0.5rem;
+  margin: 0 auto;
+  object-fit: cover;
+}
+
+/* MIDDLE SECTION */
+.signup-middle {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+  gap: 2.5rem;
+  overflow: hidden;
+  padding-top: 2rem;
+}
+
+.signup-middle h1 {
+  font-size: 4rem;
+  margin: 0;
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: 1.8rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.error-message {
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  max-width: 400px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.form-group label {
+  font-size: 1.4rem;
+  color: var(--color-text);
+  font-weight: 500;
+  text-align: left;
+}
+
+.email-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.email-icon {
+  position: absolute;
+  left: 1.5rem;
+  width: 20px;
+  height: 28px;
+  pointer-events: none;
+}
+
+.email-input {
+  width: 100%;
+  height: 5rem;
+  padding: 1.25rem 1.5rem 1.25rem 4.5rem;
+  font-size: 1.8rem;
+  border: 1px solid var(--color-border-light);
+  border-radius: 0.5rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.email-input::placeholder {
+  font-size: 1.8rem;
+}
+
+.email-input:focus {
+  border-color: var(--color-primary);
+}
+
+.email-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.proceed-btn {
+  padding: 1rem 2rem;
+  background-color: var(--color-primary);
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 2rem;
+  transition: background-color 0.2s;
+  margin-top: 1.8rem;
+}
+
+.proceed-btn:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+}
+
+.proceed-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* BOTTOM SECTION */
+.signup-bottom {
+  flex: 0 0 auto;
+  text-align: center;
+  padding-top: 2rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.signup-bottom a {
+  color: var(--color-primary);
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.signup-bottom a:hover {
+  text-decoration: underline;
+}
+
+.signup-bottom p, a {
+  font-size: 1.8rem;
+}

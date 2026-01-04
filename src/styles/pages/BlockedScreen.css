@@ -1,0 +1,26 @@
+.blocked-screen {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary-dark) 100%);
+  color: var(--color-bg-white);
+}
+
+.blocked-content {
+  text-align: center;
+  padding: var(--space-xl);
+  max-width: 500px;
+}
+
+.blocked-content h1 {
+  font-size: var(--font-size-3xl);
+  margin-bottom: var(--space-md);
+}
+
+.blocked-content p {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--space-sm);
+  opacity: 0.95;
+}
