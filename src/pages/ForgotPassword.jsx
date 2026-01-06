@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { supabase } from '../utils/supabaseClient';
 import '../styles/pages/ForgotPassword.css';
 import backIcon from '../assets/icons/back-svgrepo-com.svg';
 import forgotPasswordImage from '../assets/forgotten password page image.png';
@@ -28,9 +29,25 @@ export default function ForgotPassword({ onBack }) {
       return;
     }
 
-    console.log('Password reset requested for:', { email });
-    toast.success('Reset link sent to your email');
-    setEmail('');
+    try {
+      // Send password reset email via Supabase
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: 'http://localhost:5173/reset-password'
+      });
+
+      if (error) {
+        toast.error(error.message || 'Failed to send reset link');
+        setLoading(false);
+        return;
+      }
+
+      toast.success('Reset link sent to your email');
+      setEmail('');
+    } catch (err) {
+      console.error('Password reset error:', err);
+      toast.error('An error occurred. Please try again.');
+      setLoading(false);
+    }
 
     setLoading(false);
   };

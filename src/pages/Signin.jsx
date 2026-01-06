@@ -75,13 +75,14 @@ export default function Signin({ onSignupClick, onForgotPassword }) {
       // Check if user already has a store in Supabase
       const { data: stores, error: storeError } = await supabase
         .from('stores')
-        .select('store_name')
+        .select('store_name, admin_name')
         .eq('user_id', data.user.id)
         .single();
 
       if (!storeError && stores) {
         // Store exists, save to localStorage and go to dashboard
         localStorage.setItem('storeName', stores.store_name);
+        localStorage.setItem('adminName', stores.admin_name);
         localStorage.setItem('userId', data.user.id);
         navigate('/dashboard');
       } else {
