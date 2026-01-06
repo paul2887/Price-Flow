@@ -133,7 +133,7 @@
   max-width: 280px;
   background-color: var(--color-primary);
   color: var(--color-bg-white);
-  border-radius: var(--radius-md);
+  border-radius: 2.5rem;
   transition: var(--transition);
   border: none;
   cursor: pointer;

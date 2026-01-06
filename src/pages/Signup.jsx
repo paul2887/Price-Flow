@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { supabase } from '../utils/supabaseClient';
 import '../styles/pages/Signup.css';
 import backIcon from '../assets/icons/back-svgrepo-com.svg';
 import signupPageImage from '../assets/Signup page image.png';
@@ -28,11 +29,36 @@ export default function Signup({ onProceed, onSigninClick, onBack }) {
       return;
     }
 
-    console.log('Signup - Email provided:', { email });
-    // toast.success('Proceeding to verification');
-    onProceed(email);
+    try {
+      // Sign up with Supabase Auth
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password: Math.random().toString(36).slice(-16), // Generate random password
+        options: {
+          emailRedirectTo: 'http://localhost:5173/email-verified',
+        },
+      });
 
-    setLoading(false);
+      if (error) {
+        toast.error(error.message || 'Failed to sign up. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      if (data.user) {
+        console.log('Signup successful:', { email, userId: data.user.id });
+        toast.success('Check your email to verify your account');
+        // Save email to localStorage for persistence after refresh
+        localStorage.setItem('signupEmail', email);
+        // Navigate to verify email page instead of proceeding immediately
+        onProceed(email);
+      }
+    } catch (err) {
+      console.error('Signup error:', err);
+      toast.error('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
