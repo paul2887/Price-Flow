@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { isMobileDevice, checkMobileOnResize } from "./utils/mobileCheck";
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
 import Onboarding from "./pages/Onboarding";
 import Signup from "./pages/Signup";
 import Signin from "./pages/Signin";
@@ -121,11 +123,13 @@ function App() {
         <Route
           path="/signup"
           element={
-            <Signup
-              onProceed={handleSignupProceed}
-              onSigninClick={handleGoToSignin}
-              onBack={handleBackToOnboarding}
-            />
+            <PublicRoute>
+              <Signup
+                onProceed={handleSignupProceed}
+                onSigninClick={handleGoToSignin}
+                onBack={handleBackToOnboarding}
+              />
+            </PublicRoute>
           }
         />
         <Route
@@ -134,22 +138,45 @@ function App() {
         />
         <Route path="/email-verified" element={<EmailVerified />} />
         <Route path="/setup" element={<Setup />} />
-        <Route path="/set-password" element={<SetPassword />} />
+        <Route
+          path="/set-password"
+          element={
+            <ProtectedRoute>
+              <SetPassword />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/signin"
           element={
-            <Signin
-              onSignupClick={handleGoToSignup}
-              onForgotPassword={handleGoToForgotPassword}
-            />
+            <PublicRoute>
+              <Signin
+                onSignupClick={handleGoToSignup}
+                onForgotPassword={handleGoToForgotPassword}
+              />
+            </PublicRoute>
           }
         />
         <Route
           path="/forgot-password"
           element={<ForgotPassword onBack={handleBackFromForgotPassword} />}
         />
-        <Route path="/create-store" element={<CreateStore />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route
+          path="/create-store"
+          element={
+            <ProtectedRoute>
+              <CreateStore />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </>
   );

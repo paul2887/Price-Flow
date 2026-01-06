@@ -8,7 +8,7 @@
   align-items: center;
   justify-content: center;
   background: linear-gradient(to bottom, #ffffff 0%, #f8f9ff 100%);
-  overflow: hidden;
+  overflow: scroll;
   touch-action: pan-y;
 }
 
