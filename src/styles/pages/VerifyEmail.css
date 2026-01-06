@@ -4,7 +4,7 @@
   height: 100vh;
   padding: 2rem;
   background-color: var(--color-bg);
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 /* TOP SECTION */
@@ -61,12 +61,12 @@
   align-items: center;
   text-align: center;
   gap: 2.5rem;
-  overflow: hidden;
+  /* overflow: hidden; */
   padding-top: 2rem;
 }
 
 .verify-email-middle h1 {
-  font-size: 4rem;
+  font-size: 3rem;
   margin: 0;
   color: var(--color-text);
   font-weight: 700;
@@ -103,13 +103,13 @@
 }
 
 .resend-btn {
-  padding: 1rem 1rem;
+  padding: 1rem 5rem;
   background-color: var(--color-primary);
   color: white;
   font-size: 2rem;
   font-weight: 600;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 2.5rem;
   cursor: pointer;
   transition: background-color 0.2s;
   margin-top: 1.8rem;

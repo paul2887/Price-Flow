@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { supabase } from "../utils/supabaseClient";
 import "../styles/pages/Signin.css";
 import signinPageImage from "../assets/Signin page image.png";
 import mailIcon from "../assets/icons/mail-alt-svgrepo-com.svg";
@@ -8,6 +10,7 @@ import eyeOpen from "../assets/icons/eye-closed-svgrepo-com.svg";
 import eyeClosed from "../assets/icons/eye-off-svgrepo-com.svg";
 
 export default function Signin({ onSignupClick, onForgotPassword }) {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -45,10 +48,51 @@ export default function Signin({ onSignupClick, onForgotPassword }) {
       return;
     }
 
-    console.log("Signin attempt:", { email, password });
-    toast.success("Signing in...");
+    try {
+      // Sign in with Supabase
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
 
-    setLoading(false);
+      if (error) {
+        toast.error(error.message || "Failed to sign in");
+        setLoading(false);
+        return;
+      }
+
+      if (!data.session) {
+        toast.error("Sign in failed. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      toast.success("Signed in successfully!");
+      // Clear any stored signup data
+      localStorage.removeItem('signupEmail');
+      localStorage.removeItem('signupUserId');
+      
+      // Check if user already has a store in Supabase
+      const { data: stores, error: storeError } = await supabase
+        .from('stores')
+        .select('store_name')
+        .eq('user_id', data.user.id)
+        .single();
+
+      if (!storeError && stores) {
+        // Store exists, save to localStorage and go to dashboard
+        localStorage.setItem('storeName', stores.store_name);
+        localStorage.setItem('userId', data.user.id);
+        navigate('/dashboard');
+      } else {
+        // No store yet, go to create store
+        navigate('/create-store');
+      }
+    } catch (err) {
+      console.error('Signin error:', err);
+      toast.error("An error occurred during sign in");
+      setLoading(false);
+    }
   };
 
   return (

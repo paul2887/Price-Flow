@@ -1,12 +1,23 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import { supabase } from '../utils/supabaseClient';
 import '../styles/pages/VerifyEmail.css';
 import backIcon from '../assets/icons/back-svgrepo-com.svg';
 import verifyEmailImage from '../assets/verify email page image.png';
 
-export default function VerifyEmail({ email, onBack }) {
+
+export default function VerifyEmail({ email: propEmail, onBack }) {
+  // If propEmail is empty, try to get from localStorage
+  const [email, setEmail] = useState(propEmail || "");
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
+
+  useEffect(() => {
+    if (!email) {
+      const storedEmail = localStorage.getItem("signupEmail");
+      if (storedEmail) setEmail(storedEmail);
+    }
+  }, [email]);
 
   useEffect(() => {
     if (countdown > 0) {
@@ -16,13 +27,35 @@ export default function VerifyEmail({ email, onBack }) {
   }, [countdown]);
 
   const handleResend = async () => {
-    setLoading(true);
-    
-    console.log('Resending verification link to:', email);
-    
-    setLoading(false);
-    toast.success('Link sent successfully!');
-    setCountdown(30);
+    if (!email) {
+      toast.error('Email not found');
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: 'http://localhost:5173/email-verified',
+        },
+      });
+
+      if (error) {
+        toast.error(error.message || 'Failed to resend verification email');
+        return;
+      }
+
+      toast.success('Verification link sent successfully!');
+      setCountdown(30);
+    } catch (err) {
+      console.error('Resend error:', err);
+      toast.error('An error occurred while resending the email');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -55,10 +88,11 @@ export default function VerifyEmail({ email, onBack }) {
       </div>
 
       {/* Bottom Section: Help Text */}
-      <div className="verify-email-bottom">
-        {/* <p>Didn't receive an email? Check your spam folder or <a onClick={handleResend}>try again</a></p> */}
+      
+      {/* <div className="verify-email-bottom">
+        <p>Didn't receive an email? Check your spam folder or <a onClick={handleResend}>try again</a></p>
         <p>Didn't receive an email? Check your spam folder</p>
-      </div>
+      </div> */}
     </div>
   );
 }

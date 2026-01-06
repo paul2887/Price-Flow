@@ -1,0 +1,123 @@
+.email-verified-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 2rem;
+  background-color: var(--color-bg);
+  overflow: hidden;
+}
+
+/* TOP SECTION */
+.email-verified-top {
+  flex: 0 0 auto;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.email-verified-page-image {
+  width: 20rem;
+  height: 20rem;
+  max-width: 100%;
+  border-radius: 0.5rem;
+  object-fit: cover;
+}
+
+/* MIDDLE SECTION */
+.email-verified-middle {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+  gap: 2.5rem;
+  overflow: hidden;
+  padding-top: 2rem;
+}
+
+.email-verified-middle h1 {
+  font-size: 3rem;
+  margin: 0;
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.email-verified-middle .subtitle {
+  font-size: 1.8rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.email-verified-message {
+  background-color: #f0f7ff;
+  padding: 1.2rem;
+  border-radius: 0.5rem;
+  font-size: 1.4rem;
+  color: var(--color-text);
+}
+
+.email-verified-message.error {
+  background-color: #f8d7da;
+  border-left: 4px solid #dc3545;
+  color: #721c24;
+}
+
+.continue-btn {
+  padding: 1rem 1rem;
+  background-color: var(--color-primary);
+  color: white;
+  font-size: 2rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1.8rem;
+}
+
+.continue-btn:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+}
+
+.continue-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* SPINNER CONTAINER */
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid var(--color-primary);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner-container p {
+  font-size: 1.6rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
