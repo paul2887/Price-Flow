@@ -8,6 +8,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [storeName, setStoreName] = useState('');
+  const [adminName, setAdminName] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,13 +30,15 @@ export default function Dashboard() {
       // Fetch store from Supabase
       const { data: store, error: storeError } = await supabase
         .from('stores')
-        .select('store_name')
+        .select('store_name, admin_name')
         .eq('user_id', user.id)
         .single();
 
       if (!storeError && store) {
         setStoreName(store.store_name);
+        setAdminName(store.admin_name);
         localStorage.setItem('storeName', store.store_name);
+        localStorage.setItem('adminName', store.admin_name);
       }
     } catch (err) {
       console.error('Auth check error:', err);
@@ -77,7 +80,8 @@ export default function Dashboard() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h1>Welcome to {storeName || 'Your Store'}</h1>
+        <h1>Welcome, {adminName || 'Admin'}</h1>
+        <p className="store-name">{storeName || 'Your Store'}</p>
         <p className="user-email">{user?.email}</p>
       </div>
 

@@ -9,12 +9,17 @@ import storeIcon from '../assets/icons/store-svgrepo-com.svg';
 export default function CreateStore() {
   const navigate = useNavigate();
   const [storeName, setStoreName] = useState('');
+  const [adminName, setAdminName] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!storeName.trim()) {
       toast.error('Please enter a shop name');
+      return;
+    }
+    if (!adminName.trim()) {
+      toast.error('Please enter an admin name');
       return;
     }
     
@@ -35,7 +40,8 @@ export default function CreateStore() {
         .insert([
           {
             user_id: user.id,
-            store_name: storeName.trim()
+            store_name: storeName.trim(),
+            admin_name: adminName.trim()
           }
         ]);
 
@@ -47,6 +53,7 @@ export default function CreateStore() {
 
       // Also save to localStorage for quick access
       localStorage.setItem('storeName', storeName.trim());
+      localStorage.setItem('adminName', adminName.trim());
       localStorage.setItem('userId', user.id);
       
       toast.success('Store created successfully!');
@@ -67,8 +74,8 @@ export default function CreateStore() {
 
       {/* Middle Section: Store Name Form */}
       <div className="create-store-middle">
-        <h1>Shop Name</h1>
-        <p className="subtitle">Enter your shop name to continue</p>
+        <h1>Setup Your Store</h1>
+        <p className="subtitle">Enter your store details to continue</p>
         <form onSubmit={handleSubmit} className="form" noValidate>
           <div className="form-group">
             <label htmlFor="storeName">Shop Name</label>
@@ -85,7 +92,24 @@ export default function CreateStore() {
               />
             </div>
           </div>
-          <button type="submit" disabled={loading || !storeName.trim()} className="continue-btn">
+
+          <div className="form-group">
+            <label htmlFor="adminName">Admin Name</label>
+            <div className="store-field">
+              <img src={storeIcon} alt="Admin" className="store-icon" />
+              <input
+                id="adminName"
+                type="text"
+                value={adminName}
+                onChange={(e) => setAdminName(e.target.value)}
+                placeholder="Your Name"
+                disabled={loading}
+                className="store-name-input"
+              />
+            </div>
+          </div>
+
+          <button type="submit" disabled={loading || !storeName.trim() || !adminName.trim()} className="continue-btn">
             {loading ? 'Processing...' : 'Continue'}
           </button>
         </form>

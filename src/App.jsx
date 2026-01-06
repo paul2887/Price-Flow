@@ -11,6 +11,7 @@ import VerifyEmail from "./pages/VerifyEmail";
 import EmailVerified from "./pages/EmailVerified";
 import Setup from "./pages/Setup";
 import SetPassword from "./pages/SetPassword";
+import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
 import BlockedScreen from "./pages/BlockedScreen";
 import CreateStore from "./pages/CreateStore";
@@ -161,6 +162,7 @@ function App() {
           path="/forgot-password"
           element={<ForgotPassword onBack={handleBackFromForgotPassword} />}
         />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route
           path="/create-store"
           element={
