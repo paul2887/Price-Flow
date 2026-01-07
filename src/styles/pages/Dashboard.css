@@ -3,18 +3,20 @@
   max-width: 600px;
   margin: 0 auto;
   padding: 2rem;
+  padding-top: 160px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: #ffffff;
+  color: #333;
 }
 
 .dashboard-header {
   text-align: center;
   margin-bottom: 3rem;
   padding-top: 2rem;
+  margin-top: 3rem;
 }
 
 .dashboard-header h1 {
@@ -42,14 +44,14 @@
   gap: 1.5rem;
   margin-bottom: 2rem;
   flex: 1;
+  margin-top: 2rem;
 }
 
 .dashboard-card {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
   border-radius: 1rem;
   padding: 1.5rem;
-  backdrop-filter: blur(10px);
 }
 
 .dashboard-card h2 {
@@ -63,6 +65,26 @@
   font-size: 1rem;
   opacity: 0.95;
   margin: 0.3rem 0;
+}
+
+.header-spacer {
+  visibility: hidden;
+}
+
+.header-spacer-store {
+  visibility: hidden;
+  margin-bottom: -1rem;
+}
+
+.header-spacer-search {
+  visibility: hidden;
+  margin-bottom: 2rem;
+}
+
+.coming-soon {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-top: 1rem;
 }
 
 .logout-btn {

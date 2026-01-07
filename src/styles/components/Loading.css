@@ -1,0 +1,49 @@
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-text {
+  font-size: 8rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  animation: loadingColor 2s ease-in-out infinite;
+  color: white;
+  text-shadow: 0 0 20px rgba(0, 123, 255, 0.5);
+}
+
+@keyframes loadingColor {
+  0% {
+    color: white;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    color: #007bff;
+    text-shadow: 0 0 30px rgba(0, 123, 255, 0.8);
+  }
+  100% {
+    color: white;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  }
+}
+
+@media (max-width: 600px) {
+  .loading-text {
+    font-size: 6rem;
+  }
+}
