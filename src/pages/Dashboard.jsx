@@ -2,6 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { supabase } from '../utils/supabaseClient';
+import Header from '../components/Header';
+import StoreHeader from '../components/StoreHeader';
+import SearchHeader from '../components/SearchHeader';
+import Loading from '../components/Loading';
+import BottomNav from '../components/BottomNav';
 import '../styles/pages/Dashboard.css';
 
 export default function Dashboard() {
@@ -9,7 +14,16 @@ export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [storeName, setStoreName] = useState('');
   const [adminName, setAdminName] = useState('');
+  const [activeTab, setActiveTabState] = useState(() => {
+    return localStorage.getItem('activeTab') || 'store';
+  });
   const [loading, setLoading] = useState(true);
+
+  // Save activeTab to localStorage when it changes
+  const setActiveTab = (tab) => {
+    setActiveTabState(tab);
+    localStorage.setItem('activeTab', tab);
+  };
 
   useEffect(() => {
     checkAuth();
@@ -70,37 +84,82 @@ export default function Dashboard() {
   };
 
   if (loading) {
-    return (
-      <div className="dashboard-container">
-        <div className="loading">Loading...</div>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (
     <div className="dashboard-container">
-      <div className="dashboard-header">
-        <h1>Welcome, {adminName || 'Admin'}</h1>
-        <p className="store-name">{storeName || 'Your Store'}</p>
-        <p className="user-email">{user?.email}</p>
-      </div>
+      {/* Header - changes based on activeTab */}
+      {activeTab === 'store' ? (
+        <StoreHeader storeName={storeName} />
+      ) : activeTab === 'search' ? (
+        <SearchHeader />
+      ) : (
+        <Header adminName={adminName} />
+      )}
 
+      {/* Store info - removed */}
+
+      {/* Content - changes based on activeTab */}
       <div className="dashboard-content">
-        <div className="dashboard-card">
-          <h2>Store Status</h2>
-          <p>Your store is active and ready to use!</p>
-        </div>
+        {/* Store Tab */}
+        {activeTab === 'store' && (
+          <>
+            <div className="dashboard-header header-spacer">
+              <p className="store-name">spacer</p>
+            </div>
+            <div className="dashboard-card">
+              <h2>Store Status</h2>
+              <p>Your store is active and ready to use!</p>
+            </div>
 
-        <div className="dashboard-card">
-          <h2>Account</h2>
-          <p>Email: {user?.email}</p>
-          <p>User ID: {user?.id}</p>
-        </div>
+            <div className="dashboard-card">
+              <h2>Account</h2>
+              <p>Email: {user?.email}</p>
+              <p>User ID: {user?.id}</p>
+            </div>
+
+            <button onClick={handleLogout} className="logout-btn">
+              Logout
+            </button>
+          </>
+        )}
+
+        {/* Products Tab */}
+        {activeTab === 'products' && (
+          <>
+            <div className="dashboard-header header-spacer-store">
+              <p className="store-name">spacer</p>
+            </div>
+            <div className="dashboard-card">
+              <h2>Products</h2>
+              <p>Manage your store products here</p>
+              <p className="coming-soon">
+                Coming soon...
+              </p>
+            </div>
+          </>
+        )}
+
+        {/* Search Tab */}
+        {activeTab === 'search' && (
+          <>
+            <div className="dashboard-header header-spacer-search">
+              <p className="store-name">spacer</p>
+            </div>
+            <div className="dashboard-card">
+              <h2>Search</h2>
+              <p>Search products and customers</p>
+              <p className="coming-soon">
+                Coming soon...
+              </p>
+            </div>
+          </>
+        )}
       </div>
 
-      <button onClick={handleLogout} className="logout-btn">
-        Logout
-      </button>
+      {/* Bottom Navigation */}
+      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
 }

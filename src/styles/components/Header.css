@@ -1,0 +1,54 @@
+.header {
+  padding: 1.5rem 2rem;
+  color: #333;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.header-content {
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-circle-icon {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.greeting {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1;
+}
+
+@media (max-width: 600px) {
+  .header {
+    padding: 1.2rem 1.5rem;
+  }
+
+  .user-circle-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .greeting {
+    font-size: 1.6rem;
+  }
+}
