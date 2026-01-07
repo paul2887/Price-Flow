@@ -1,12 +1,12 @@
+import homeIcon from '../assets/icons/home-svgrepo-com.svg';
 import productsIcon from '../assets/icons/products-svgrepo-com.svg';
-import searchIcon from '../assets/icons/search-svgrepo-com.svg';
 import storeIcon from '../assets/icons/store-svgrepo-com.svg';
 import '../styles/components/BottomNav.css';
 
 export default function BottomNav({ activeTab, onTabChange }) {
   const tabs = [
+    { name: 'Home', id: 'home', icon: homeIcon },
     { name: 'Products', id: 'products', icon: productsIcon },
-    { name: 'Search', id: 'search', icon: searchIcon },
     { name: 'Store', id: 'store', icon: storeIcon }
   ];
 

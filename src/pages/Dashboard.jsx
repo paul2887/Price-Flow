@@ -4,7 +4,6 @@ import toast from 'react-hot-toast';
 import { supabase } from '../utils/supabaseClient';
 import Header from '../components/Header';
 import StoreHeader from '../components/StoreHeader';
-import SearchHeader from '../components/SearchHeader';
 import Loading from '../components/Loading';
 import BottomNav from '../components/BottomNav';
 import '../styles/pages/Dashboard.css';
@@ -15,7 +14,7 @@ export default function Dashboard() {
   const [storeName, setStoreName] = useState('');
   const [adminName, setAdminName] = useState('');
   const [activeTab, setActiveTabState] = useState(() => {
-    return localStorage.getItem('activeTab') || 'store';
+    return localStorage.getItem('activeTab') || 'home';
   });
   const [loading, setLoading] = useState(true);
 
@@ -92,8 +91,6 @@ export default function Dashboard() {
       {/* Header - changes based on activeTab */}
       {activeTab === 'store' ? (
         <StoreHeader storeName={storeName} />
-      ) : activeTab === 'search' ? (
-        <SearchHeader />
       ) : (
         <Header adminName={adminName} />
       )}
@@ -102,6 +99,22 @@ export default function Dashboard() {
 
       {/* Content - changes based on activeTab */}
       <div className="dashboard-content">
+        {/* Home Tab */}
+        {activeTab === 'home' && (
+          <>
+            <div className="dashboard-header header-spacer">
+              <p className="store-name">spacer</p>
+            </div>
+            <div className="dashboard-card">
+              <h2>Welcome Home</h2>
+              <p>Welcome to {storeName || 'Your Store'}!</p>
+              <p className="coming-soon">
+                Coming soon...
+              </p>
+            </div>
+          </>
+        )}
+
         {/* Store Tab */}
         {activeTab === 'store' && (
           <>
@@ -133,25 +146,7 @@ export default function Dashboard() {
             </div>
             <div className="dashboard-card">
               <h2>Products</h2>
-              <p>Manage your store products here</p>
-              <p className="coming-soon">
-                Coming soon...
-              </p>
-            </div>
-          </>
-        )}
-
-        {/* Search Tab */}
-        {activeTab === 'search' && (
-          <>
-            <div className="dashboard-header header-spacer-search">
-              <p className="store-name">spacer</p>
-            </div>
-            <div className="dashboard-card">
-              <h2>Search</h2>
-              <p>Search products and customers</p>
-              <p className="coming-soon">
-                Coming soon...
+              <p>Manage your store products here
               </p>
             </div>
           </>
