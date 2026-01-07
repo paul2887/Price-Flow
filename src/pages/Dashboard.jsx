@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { supabase } from '../utils/supabaseClient';
 import Header from '../components/Header';
 import StoreHeader from '../components/StoreHeader';
+import SearchHeader from '../components/SearchHeader';
 import Loading from '../components/Loading';
 import BottomNav from '../components/BottomNav';
 import '../styles/pages/Dashboard.css';
@@ -91,6 +92,8 @@ export default function Dashboard() {
       {/* Header - changes based on activeTab */}
       {activeTab === 'store' ? (
         <StoreHeader storeName={storeName} />
+      ) : activeTab === 'products' ? (
+        <SearchHeader />
       ) : (
         <Header adminName={adminName} />
       )}
