@@ -54,20 +54,27 @@
 .clear-button {
   position: absolute;
   right: 1.2rem;
-  background: none;
+  background: none !important;
   border: none;
-  font-size: 1.5rem;
-  color: #999;
+  font-size: 2rem;
+  color: #666;
   cursor: pointer;
   padding: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: color 0.3s ease;
+  z-index: 10;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .clear-button:hover {
   color: #333;
+  background: none !important;
+}
+
+.clear-button:active {
+  background: none !important;
 }
 
 @media (max-width: 600px) {
