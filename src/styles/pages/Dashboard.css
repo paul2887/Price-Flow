@@ -1,10 +1,11 @@
 .dashboard-container {
   width: 100%;
   max-width: 600px;
-  margin: 0 auto;
+  /* margin: 0 auto; */
+  margin-top: 60px;
   padding: 2rem;
-  padding-top: 160px;
-  min-height: 100vh;
+  padding-top: 2rem;
+  min-height: 92vh;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -44,7 +45,7 @@
   gap: 1.5rem;
   margin-bottom: 2rem;
   flex: 1;
-  margin-top: 2rem;
+  margin-top: 15px;
 }
 
 .dashboard-card {
@@ -52,6 +53,7 @@
   border: 1px solid #e0e0e0;
   border-radius: 1rem;
   padding: 1.5rem;
+  min-height: 200px;
 }
 
 .dashboard-card h2 {
@@ -73,7 +75,7 @@
 
 .header-spacer-store {
   visibility: hidden;
-  margin-bottom: -1rem;
+  margin-bottom: 1rem;
 }
 
 .coming-soon {

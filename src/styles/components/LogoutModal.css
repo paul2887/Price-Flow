@@ -1,0 +1,119 @@
+.logout-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.logout-modal-box {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.logout-modal-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 70px;
+  height: 70px;
+  background: #ffe5e8;
+  border-radius: 50%;
+}
+
+.logout-modal-icon svg {
+  width: 48px;
+  height: 48px;
+}
+
+.logout-modal-content {
+  text-align: center;
+}
+
+.logout-modal-content h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: #333;
+}
+
+.logout-modal-content p {
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+}
+
+.logout-modal-buttons {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn {
+  background-color: #007bff !important;
+  color: white !important;
+  border: none !important;
+}
+
+.cancel-btn:hover {
+  background-color: #0056b3 !important;
+  transform: translateY(-2px);
+}
+
+.cancel-btn:active {
+  transform: translateY(0);
+}
+
+.logout-btn-modal {
+  background-color: #ff3838;
+  color: white;
+}
+
+.logout-btn-modal:hover {
+  background-color: #ff3838;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4);
+}
+
+.logout-btn-modal:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 600px) {
+  .logout-modal-box {
+    max-width: 90%;
+    padding: 1.5rem;
+  }
+
+  .logout-modal-content h2 {
+    font-size: 1.6rem;
+  }
+
+  .logout-modal-content p {
+    font-size: 1.2rem;
+  }
+}

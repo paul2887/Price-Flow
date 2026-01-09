@@ -16,6 +16,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import BlockedScreen from "./pages/BlockedScreen";
 import CreateStore from "./pages/CreateStore";
 import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
 import "./styles/global.css";
 import "./App.css";
 
@@ -176,6 +177,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           }
         />
