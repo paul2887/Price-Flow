@@ -1,0 +1,27 @@
+.store-tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
+}
+
+.store-card {
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  min-height: 200px;
+}
+
+.store-card h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  margin-top: 0;
+}
+
+.store-card p {
+  font-size: 1rem;
+  opacity: 0.95;
+  margin: 0.3rem 0;
+}
