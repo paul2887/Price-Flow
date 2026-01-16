@@ -1,4 +1,4 @@
-.products-tab-content {
+.products-list-car.products-tab-content {
   display: flex;
   flex-direction: column;
   height: auto;
@@ -93,7 +93,8 @@
 }
 
 .dots-btn.active svg {
-  filter: invert(33%) sepia(68%) saturate(1456%) hue-rotate(197deg) brightness(104%) contrast(102%);
+  filter: invert(33%) sepia(68%) saturate(1456%) hue-rotate(197deg)
+    brightness(104%) contrast(102%);
 }
 
 .dots-btn:active {
@@ -175,5 +176,36 @@
   .product-availability {
     font-size: 11px;
     margin-top: 3px;
+  }
+}
+
+@media (max-height: 667px) {
+  .products-list-card {
+    max-height: 72.5vh;
+    padding: 0;
+  }
+}
+
+@media(max-height:844px) {
+  .products-list-card {
+    max-height: 66.2rem !important;
+  }
+}
+
+@media (max-height: 896px) {
+  .products-list-card {
+    max-height: 71.5rem;
+  }
+}
+
+@media (max-height: 915px) {
+  .products-list-card {
+    max-height: 80vh;
+  }
+}
+
+@media (max-height: 932px) {
+  .products-list-card {
+    max-height: 80.5vh;
   }
 }
