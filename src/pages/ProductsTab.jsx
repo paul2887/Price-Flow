@@ -21,7 +21,7 @@ export default function ProductsTab() {
       );
       setFilteredProducts(filtered);
     }
-  }, [searchQuery]);
+    }, [searchQuery, products]);
 
   const handleOpenModal = (productId, e) => {
     e.stopPropagation();

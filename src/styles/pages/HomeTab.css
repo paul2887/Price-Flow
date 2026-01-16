@@ -1,46 +1,140 @@
 .home-tab-content {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 3rem;
   height: 100%;
 }
 
-.home-card {
+.store-name-display {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #000;
+  margin: 0;
+  padding: 1rem 0.5rem 0 0.5rem;
+}
+
+.card-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.card-label {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  padding: 0 0.5rem;
+}
+
+.home-stats-card {
   background: #f9f9f9;
   border: 1px solid #e0e0e0;
   border-radius: 1rem;
   padding: 1.5rem;
-  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  /* box-shadow: 20px 2px 8px rgba(0, 0, 0, 0.08); */
 }
 
-.home-card h2 {
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  margin-top: 0;
+.stats-header {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
 }
 
-.home-card p {
-  font-size: 1rem;
-  opacity: 0.95;
-  margin: 0.3rem 0;
+.stat-item {
+  text-align: center;
+  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-right: 1px solid #e0e0e0;
 }
 
-.coming-soon {
-  font-size: 0.9rem;
-  opacity: 0.8;
-  margin-top: 1rem;
+.stat-item:last-child {
+  border-right: none;
+}
+
+.stat-label {
+  font-size: 1.2rem;
+  color: #777;
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #0066ff;
+  margin: 0;
+}
+
+.in-stock {
+  color: #4caf50 !important;
+}
+
+.sold-out {
+  color: #ff5757 !important;
+}
+
+.store-member-stats-card {
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  /* box-shadow: 20px 2px 8px rgba(0, 0, 0, 0.08); */
+  justify-content: center;
+  align-items: center;
+}
+
+.store-member-stat-item {
+  text-align: center;
+  padding: 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-right: 1px solid #e0e0e0;
+  border-radius: 10px;
+}
+
+.store-member-stat-item:last-child {
+  border-right: none;
+}
+
+.store-member-stat-label {
+  font-size: 1.2rem;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.store-member-stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #0066ff;
+  margin: 0;
 }
 
 .products-action-card {
   background: #f9f9f9;
+  border: 1px solid #e0e0e0;
   border-radius: 1rem;
-  padding: 1.5rem;
-  height: 90px;
+  padding: 1rem .5rem;
+  /* height: 90px; */
   display: flex;
   justify-content: space-around;
   align-items: center;
-  box-shadow: 20px 2px 8px rgba(0, 0, 0, 0.08);
+  /* box-shadow: 20px 2px 8px rgba(0, 0, 0, 0.08); */
 }
 
 .product-action-btn {
@@ -50,10 +144,16 @@
   justify-content: center;
   gap: 0.8rem;
   border: none;
+  /* border-right: 1px solid #e0e0e0; */
+  padding: 10px;
   background: none;
   cursor: pointer;
   transition: all 0.3s ease;
   -webkit-tap-highlight-color: transparent;
+}
+
+.product-action-btn:last-child {
+  border-right: none;
 }
 
 .action-icon {
@@ -61,7 +161,8 @@
   height: 36px;
   object-fit: contain;
   transition: transform 0.2s ease;
-  filter: invert(33%) sepia(68%) saturate(1456%) hue-rotate(197deg) brightness(104%) contrast(102%);
+  stroke: #0066ff;
+  color: #0066ff;
 }
 
 .icon-background {
@@ -84,7 +185,7 @@
 }
 
 .action-label {
-  font-size: 1.1rem;
+  font-size: 1.6rem;
   font-weight: 600;
   color: #333;
 }
@@ -95,11 +196,59 @@
   }
 
   .action-icon {
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
   }
 
   .action-label {
-    font-size: 1rem;
+    font-size: 1.2rem;
+  }
+
+  .card-label {
+    font-size: 1.8rem;
+  }
+
+  .store-member-stat-value {
+    font-size: 3rem;
+  }
+}
+
+@media (max-height: 667px) {
+  .store-name-display {
+    font-size: 1.8rem;
+    padding: 0;
+  }
+
+  .home-tab-content {
+    gap: 1.2rem;
+  }
+
+  .home-stats-card {
+    padding: 0.6rem;
+  }
+
+  .store-member-stats-card {
+    padding: 0.4rem;
+  }
+}
+
+
+@media(max-height: 736px) {
+  .store-member-stats-card {
+    padding: 0.8rem;
+  }
+} 
+
+@media(max-height: 740px) {
+  .products-action-card {
+    padding: .6rem;
+  }
+
+  .home-stats-card {
+    padding: .6rem;
+  }
+
+  .store-member-stats-card {
+    padding: .8rem;
   }
 }
