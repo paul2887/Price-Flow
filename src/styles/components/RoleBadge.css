@@ -1,0 +1,27 @@
+.role-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+/* Store Owner - Red bg with white text */
+.role-badge.role-owner {
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+/* Store Admin - Blue bg with white text */
+.role-badge.role-admin {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+/* Sales Person - Black bg with white text */
+.role-badge.role-sales {
+  background-color: #1f2937;
+  color: #ffffff;
+}

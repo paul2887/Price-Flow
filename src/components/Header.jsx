@@ -1,11 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import userCircleIcon from '../assets/icons/user-circle-svgrepo-com.svg';
+import RoleBadge from './RoleBadge';
 import '../styles/components/Header.css';
 
-export default function Header({ adminName, userRole  }) {
+export default function Header({ adminName }) {
   const navigate = useNavigate();
+  
   // Extract only the first name (first word)
-  const firstName = adminName ? adminName.split(' ')[0] : 'Admin';
+  const firstName = adminName ? adminName.split(' ')[0] : 'User';
 
   const handleProfileClick = () => {
     navigate('/profile');
@@ -19,7 +21,7 @@ export default function Header({ adminName, userRole  }) {
         </button>
         <div className="header-text">
           <h2 className="greeting">Hello, {firstName}</h2>
-          <span className="role-badge">{userRole}</span>
+          <RoleBadge useLocalStorage={true} />
         </div>
       </div>
     </header>

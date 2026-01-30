@@ -1,7 +1,27 @@
+import { supabase } from '../utils/supabaseClient';
 import '../styles/components/ProductStatusModal.css';
 
-export default function ProductStatusModal({ isOpen, onClose, product }) {
-  if (!isOpen) return null;
+export default function ProductStatusModal({ isOpen, onClose, product, onStatusChange }) {
+  const handleStatusChange = async (newStatus) => {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .update({ availability: newStatus })
+        .eq('id', product.id);
+
+      if (error) throw error;
+      
+      // Notify parent with the new status for immediate update
+      if (onStatusChange) {
+        onStatusChange(product.id, newStatus);
+      }
+      onClose();
+    } catch (err) {
+      console.error('Error updating product status:', err);
+    }
+  };
+
+  if (!isOpen || !product) return null;
 
   return (
     <>
@@ -15,13 +35,19 @@ export default function ProductStatusModal({ isOpen, onClose, product }) {
         </button>
 
         <h3 className="modal-header">Product Status</h3>
-        <p className="modal-subtitle">Mark product as</p>
+        <p className="modal-subtitle">{product.name}</p>
         
         <div className="status-buttons">
-          <button className="status-btn sold-out-btn">
+          <button 
+            className="status-btn sold-out-btn"
+            onClick={() => handleStatusChange(false)}
+          >
             Sold Out
           </button>
-          <button className="status-btn in-stock-btn">
+          <button 
+            className="status-btn in-stock-btn"
+            onClick={() => handleStatusChange(true)}
+          >
             In Stock
           </button>
         </div>

@@ -1,0 +1,192 @@
+/* Update Member Role Modal Styles */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.modal-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #000;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.modal-close:hover {
+  color: #000;
+}
+
+.role-info {
+  background: #f8f9fa;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.role-member-name {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #000;
+  margin: 0 0 0.5rem 0;
+}
+
+.role-member-email {
+  font-size: 1.2rem;
+  color: #666;
+  margin: 0 0 1rem 0;
+}
+
+.role-current {
+  font-size: 1.2rem;
+  color: #333;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.role-badge.admin {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.role-badge.sales-person {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.modal-input {
+  font-size: 16px;
+  padding: 0.8rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.modal-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.role-description {
+  font-size: 1.2rem;
+  color: #666;
+  background: #f0f4f8;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.modal-btn-primary {
+  padding: 1rem;
+  font-size: 1.4rem;
+  font-weight: 600;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
+}
+
+.modal-btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.modal-btn-primary:disabled {
+  background-color: #b0c4de;
+  cursor: not-allowed;
+}
+
+.modal-btn-danger {
+  padding: 1rem;
+  font-size: 1.4rem;
+  font-weight: 600;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.modal-btn-danger:hover {
+  background-color: #c82333;
+}
+
+.modal-btn-danger:disabled {
+  background-color: #d4a5a5;
+  cursor: not-allowed;
+}

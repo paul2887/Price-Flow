@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import bcryptjs from "bcryptjs";
 import { supabase } from "../utils/supabaseClient";
+import { useAuth } from "../context/AuthContext";
 import "../styles/pages/Signin.css";
 import signinPageImage from "../assets/Signin page image.png";
 import mailIcon from "../assets/icons/mail-alt-svgrepo-com.svg";
@@ -11,6 +13,7 @@ import eyeClosed from "../assets/icons/eye-off-svgrepo-com.svg";
 
 export default function Signin({ onSignupClick, onForgotPassword }) {
   const navigate = useNavigate();
+  const { checkAuth } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -49,46 +52,93 @@ export default function Signin({ onSignupClick, onForgotPassword }) {
     }
 
     try {
-      // Sign in with Supabase
+      // First, try signing in with Supabase auth
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
-      if (error) {
-        toast.error(error.message || "Failed to sign in");
+      if (!error && data.session) {
+        // User authenticated successfully via Supabase auth
+        toast.success("Signed in successfully!");
+        localStorage.removeItem('signupEmail');
+        localStorage.removeItem('signupUserId');
+        
+        // Check if user has a store
+        const { data: stores, error: storeError } = await supabase
+          .from('stores')
+          .select('store_name, admin_name')
+          .eq('user_id', data.user.id)
+          .single();
+
+        if (!storeError && stores) {
+          localStorage.setItem('storeName', stores.store_name);
+          localStorage.setItem('adminName', stores.admin_name);
+          localStorage.setItem('userId', data.user.id);
+          navigate('/dashboard');
+        } else {
+          navigate('/create-store');
+        }
+        return;
+      }
+
+      // If auth failed, try checking staff table (invited members with custom password)
+      const { data: staffMember, error: staffError } = await supabase
+        .from('staff')
+        .select('*')
+        .eq('email', email)
+        .single();
+
+      if (staffError) {
+        toast.error("Invalid email or password");
         setLoading(false);
         return;
       }
 
-      if (!data.session) {
-        toast.error("Sign in failed. Please try again.");
+      // Check if staff member has a password hash (invited member)
+      if (!staffMember.password_hash) {
+        toast.error("This email has not been set up yet. Please contact your store admin.");
         setLoading(false);
         return;
       }
 
+      // Compare password with stored hash
+      const passwordMatch = bcryptjs.compareSync(password, staffMember.password_hash);
+      
+      if (!passwordMatch) {
+        toast.error("Invalid email or password");
+        setLoading(false);
+        return;
+      }
+
+      // Password matches - invited member can login
       toast.success("Signed in successfully!");
-      // Clear any stored signup data
       localStorage.removeItem('signupEmail');
       localStorage.removeItem('signupUserId');
       
-      // Check if user already has a store in Supabase
-      const { data: stores, error: storeError } = await supabase
+      // Set user info for invited member
+      localStorage.setItem('userId', email); // Use email as ID for invited members
+      localStorage.setItem('userEmail', email);
+      localStorage.setItem('userFullName', staffMember.full_name || ''); // Store the invited member's full name
+      localStorage.setItem('userRole', staffMember.role);
+      localStorage.setItem('storeId', staffMember.store_id);
+      
+      // Get store details for invited member
+      const { data: storeData } = await supabase
         .from('stores')
         .select('store_name, admin_name')
-        .eq('user_id', data.user.id)
+        .eq('id', staffMember.store_id)
         .single();
 
-      if (!storeError && stores) {
-        // Store exists, save to localStorage and go to dashboard
-        localStorage.setItem('storeName', stores.store_name);
-        localStorage.setItem('adminName', stores.admin_name);
-        localStorage.setItem('userId', data.user.id);
-        navigate('/dashboard');
-      } else {
-        // No store yet, go to create store
-        navigate('/create-store');
+      if (storeData) {
+        localStorage.setItem('storeName', storeData.store_name);
+        localStorage.setItem('adminName', storeData.admin_name);
       }
+
+      // Refresh auth context with new localStorage data
+      await checkAuth();
+      
+      navigate('/dashboard');
     } catch (err) {
       console.error('Signin error:', err);
       toast.error("An error occurred during sign in");

@@ -1,27 +1,89 @@
-import { useState, useEffect, useRef } from 'react';
-import { products } from '../data/products';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import SearchHeader from '../components/SearchHeader';
 import ProductStatusModal from '../components/ProductStatusModal';
 import '../styles/pages/ProductsTab.css';
+import { formatPrice } from '../utils/formatPrice';
+import { supabase } from '../utils/supabaseClient';
 
-export default function ProductsTab() {
+export default function ProductsTab({ storeId, isVisible, refreshKey }) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [activeDotsButton, setActiveDotsButton] = useState(null);
+  const [currentUserRole, setCurrentUserRole] = useState(null);
   const productsListRef = useRef(null);
 
+  const fetchCurrentUserRole = useCallback(async () => {
+    try {
+      // First check if user is invited member (from localStorage)
+      const invitedUserRole = localStorage.getItem('userRole');
+      if (invitedUserRole) {
+        setCurrentUserRole(invitedUserRole);
+        return;
+      }
+
+      // Otherwise fetch from Supabase auth
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('staff')
+        .select('role')
+        .eq('store_id', storeId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (data) {
+        setCurrentUserRole(data.role);
+      }
+    } catch (err) {
+      console.error('Error fetching user role:', err);
+    }
+  }, [storeId]);
+
+  const fetchProducts = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('store_id', storeId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setProducts(data || []);
+      setFilteredProducts(data || []);
+    } catch (err) {
+      console.error('Error fetching products:', err);
+    }
+  }, [storeId]);
+
+  // Fetch products and current user role on mount
+  useEffect(() => {
+    fetchProducts();
+    fetchCurrentUserRole();
+  }, [fetchProducts, fetchCurrentUserRole]);
+
+  // Refetch when tab becomes visible or refreshKey changes
+  useEffect(() => {
+    if (isVisible) {
+      fetchProducts();
+      fetchCurrentUserRole();
+    }
+  }, [isVisible, refreshKey, fetchProducts, fetchCurrentUserRole]);
+
+  // Filter products based on search query
   useEffect(() => {
     if (searchQuery.trim() === '') {
       setFilteredProducts(products);
     } else {
       const filtered = products.filter((product) =>
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.category.toLowerCase().includes(searchQuery.toLowerCase())
+        (product.category && product.category.toLowerCase().includes(searchQuery.toLowerCase()))
       );
       setFilteredProducts(filtered);
     }
-    }, [searchQuery, products]);
+  }, [searchQuery, products]);
 
   const handleOpenModal = (productId, e) => {
     e.stopPropagation();
@@ -41,7 +103,7 @@ export default function ProductsTab() {
   };
 
   const selectedProduct = selectedProductId 
-    ? filteredProducts.find(p => p.id === selectedProductId)
+    ? products.find(p => p.id === selectedProductId)
     : null;
 
   return (
@@ -63,7 +125,7 @@ export default function ProductsTab() {
               
               <div className="product-right">
                 <div className="product-info">
-                  <p className="product-price">₦{product.price.toLocaleString()}</p>
+                  <p className="product-price">₦{formatPrice(product.price)}</p>
                   <p className={`product-availability ${product.availability ? 'in-stock' : 'sold-out'}`}>
                     {product.availability ? 'In Stock' : 'Sold Out'}
                   </p>
@@ -88,6 +150,8 @@ export default function ProductsTab() {
         isOpen={selectedProductId !== null}
         onClose={handleCloseModal}
         product={selectedProduct}
+        onStatusChange={fetchProducts}
+        userRole={currentUserRole}
       />
     </div>
   );
