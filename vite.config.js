@@ -9,4 +9,7 @@ export default defineConfig({
     port: 5173,
     allowedHosts: [".trycloudflare.com"],
   },
+  build: {
+    sourcemap: false, // Disable source maps in production
+  },
 });

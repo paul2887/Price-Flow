@@ -46,7 +46,6 @@ export default function Signup({ onProceed, onSigninClick, onBack }) {
       }
 
       if (data.user) {
-        console.log('Signup successful:', { email, userId: data.user.id });
         toast.success('Check your email to verify your account');
         // Save email to localStorage for persistence after refresh
         localStorage.setItem('signupEmail', email);

@@ -1,12 +1,16 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import { AuthProvider } from "./context/AuthContext";
+import { RoleProvider } from "./context/RoleContext";
 import { isMobileDevice, checkMobileOnResize } from "./utils/mobileCheck";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import Onboarding from "./pages/Onboarding";
 import Signup from "./pages/Signup";
 import Signin from "./pages/Signin";
+import InviteSignup from "./pages/InviteSignup";
+import InviteCreatePassword from "./pages/InviteCreatePassword";
 import VerifyEmail from "./pages/VerifyEmail";
 import EmailVerified from "./pages/EmailVerified";
 import Setup from "./pages/Setup";
@@ -17,6 +21,7 @@ import BlockedScreen from "./pages/BlockedScreen";
 import CreateStore from "./pages/CreateStore";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
+import AcceptInvite from "./pages/AcceptInvite";
 import "./styles/global.css";
 import "./App.css";
 
@@ -77,7 +82,8 @@ function App() {
   const hasSeenOnboarding = localStorage.getItem("hasSeenOnboarding");
 
   return (
-    <>
+    <AuthProvider>
+      <RoleProvider>
       <Toaster
         position="top-center"
         reverseOrder={true}
@@ -99,7 +105,7 @@ function App() {
             },
           },
           error: {
-            duration: 4000,
+            duration: 3000,
             style: {
               background: "#dc3545",
             },
@@ -188,8 +194,12 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/accept-invite" element={<AcceptInvite />} />
+        <Route path="/invite-signup" element={<InviteSignup />} />
+        <Route path="/invite-create-password" element={<InviteCreatePassword />} />
       </Routes>
-    </>
+      </RoleProvider>
+    </AuthProvider>
   );
 }
 

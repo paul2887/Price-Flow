@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { supabase } from '../utils/supabaseClient';
+import { useAuth } from '../context/AuthContext';
+import { useRole } from '../context/RoleContext';
 import Header from '../components/Header';
 import StoreHeader from '../components/StoreHeader';
 import SearchHeader from '../components/SearchHeader';
@@ -14,28 +16,87 @@ import '../styles/pages/Dashboard.css';
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { user: authUser, isAuthenticated, loading: authLoading } = useAuth();
+  const { refreshKey, refreshRole, updateRole } = useRole();
   const [user, setUser] = useState(null);
   const [storeName, setStoreName] = useState('');
+  const [storeId, setStoreId] = useState('');
   const [adminName, setAdminName] = useState('');
-  const [userRole, setUserRole] = useState('Store Admin');
   const [activeTab, setActiveTabState] = useState(() => {
     return localStorage.getItem('activeTab') || 'home';
   });
   const [loading, setLoading] = useState(true);
 
-  // Save activeTab to localStorage when it changes
+  // Save activeTab to localStorage when it changes and trigger refresh
   const setActiveTab = (tab) => {
     setActiveTabState(tab);
     localStorage.setItem('activeTab', tab);
+    refreshRole(); // Refresh role from context
   };
 
   useEffect(() => {
-    checkAuth();
+    // Wait for AuthContext to finish loading before checking auth
+    if (!authLoading) {
+      checkAuth();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isAuthenticated, authUser, authLoading]);
 
   const checkAuth = async () => {
     try {
+      // Check if user is authenticated via AuthContext
+      if (!isAuthenticated) {
+        navigate('/signin');
+        return;
+      }
+
+      // For invited members (stored in staff table)
+      if (authUser?.isInvitedMember) {
+        const userFullName = localStorage.getItem('userFullName');
+        const storedStoreId = localStorage.getItem('storeId');
+        const storedStoreName = localStorage.getItem('storeName');
+        const userEmail = localStorage.getItem('userEmail');
+
+        setUser({ isInvitedMember: true });
+        setStoreId(storedStoreId);
+        setStoreName(storedStoreName); // Use stored name as initial value
+        setAdminName(userFullName); // Use the invited member's actual full name
+        
+        // Fetch role and store name from database
+        if (userEmail && storedStoreId) {
+          const [staffResponse, storeResponse] = await Promise.all([
+            supabase
+              .from('staff')
+              .select('role')
+              .eq('email', userEmail)
+              .eq('store_id', storedStoreId)
+              .single(),
+            supabase
+              .from('stores')
+              .select('store_name, admin_name')
+              .eq('id', storedStoreId)
+              .single()
+          ]);
+          
+          if (!staffResponse.error && staffResponse.data) {
+            updateRole(staffResponse.data.role);
+          }
+          
+          if (!storeResponse.error && storeResponse.data) {
+            const store = storeResponse.data;
+            setStoreName(store.store_name);
+            setAdminName(store.admin_name);
+            localStorage.setItem('storeId', storedStoreId);
+            localStorage.setItem('storeName', store.store_name);
+            localStorage.setItem('adminName', store.admin_name);
+          }
+        }
+        
+        setLoading(false);
+        return;
+      }
+
+      // For regular Supabase auth users
       const { data: { user }, error } = await supabase.auth.getUser();
       
       if (error || !user) {
@@ -45,30 +106,32 @@ export default function Dashboard() {
 
       setUser(user);
       
-      // Fetch store from Supabase
-      const { data: store, error: storeError } = await supabase
-        .from('stores')
-        .select('store_name, admin_name')
-        .eq('user_id', user.id)
-        .single();
+      // Run store and staff queries in parallel instead of sequentially
+      const [storeResponse, staffResponse] = await Promise.all([
+        supabase
+          .from('stores')
+          .select('id, store_name, admin_name')
+          .eq('user_id', user.id)
+          .single(),
+        supabase
+          .from('staff')
+          .select('role')
+          .eq('user_id', user.id)
+          .single()
+      ]);
 
-      if (!storeError && store) {
+      if (!storeResponse.error && storeResponse.data) {
+        const store = storeResponse.data;
+        setStoreId(store.id);
         setStoreName(store.store_name);
         setAdminName(store.admin_name);
+        localStorage.setItem('storeId', store.id);
         localStorage.setItem('storeName', store.store_name);
         localStorage.setItem('adminName', store.admin_name);
       }
 
-      // Fetch user's role from staff table
-      const { data: staffData, error: staffError } = await supabase
-        .from('staff')
-        .select('role')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!staffError && staffData) {
-        setUserRole(staffData.role);
-        localStorage.setItem('userRole', staffData.role);
+      if (!staffResponse.error && staffResponse.data) {
+        updateRole(staffResponse.data.role);
       }
     } catch (err) {
       console.error('Auth check error:', err);
@@ -99,7 +162,7 @@ export default function Dashboard() {
     }
   };
 
-  if (loading) {
+  if (loading || authLoading) {
     return <Loading />;
   }
 
@@ -111,16 +174,22 @@ export default function Dashboard() {
       ) : activeTab === 'products' ? (
         <SearchHeader />
       ) : (
-        <Header adminName={adminName} userRole={userRole} />
+        <Header adminName={adminName} />
       )}
 
       {/* Store info - removed */}
 
-      {/* Content - changes based on activeTab */}
+      {/* Content - all tabs mounted, visibility toggled with CSS */}
       <div className="dashboard-content">
-        {activeTab === 'home' && <HomeTab storeName={storeName} />}
-        {activeTab === 'store' && <StoreTab user={user} onLogout={handleLogout} />}
-        {activeTab === 'products' && <ProductsTab />}
+        <div style={{ display: activeTab === 'home' ? 'block' : 'none' }}>
+          <HomeTab storeName={storeName} storeId={storeId} isVisible={activeTab === 'home'} />
+        </div>
+        <div style={{ display: activeTab === 'store' ? 'block' : 'none' }}>
+          <StoreTab user={user} onLogout={handleLogout} storeId={storeId} isVisible={activeTab === 'store'} refreshKey={refreshKey} />
+        </div>
+        <div style={{ display: activeTab === 'products' ? 'block' : 'none' }}>
+          <ProductsTab storeId={storeId} isVisible={activeTab === 'products'} refreshKey={refreshKey} />
+        </div>
       </div>
 
       {/* Bottom Navigation */}

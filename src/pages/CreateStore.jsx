@@ -37,19 +37,68 @@ export default function CreateStore() {
         return;
       }
 
-      // Save store to Supabase database
-      const { error } = await supabase.from("stores").insert([
-        {
-          user_id: user.id,
-          store_name: storeName.trim(),
-          admin_name: adminName.trim(),
-        },
-      ]);
+      // Check if user already has a store
+      const { data: existingStore, error: checkError } = await supabase
+        .from("stores")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
 
-      if (error) {
-        toast.error(error.message || "Failed to create store");
+      if (existingStore) {
+        toast.info("You already have a store! Redirecting to dashboard...");
+        navigate("/dashboard");
+        return;
+      }
+
+      // Save store to Supabase database
+      const { data: storeData, error: storeError } = await supabase
+        .from("stores")
+        .insert([
+          {
+            user_id: user.id,
+            store_name: storeName.trim(),
+            admin_name: adminName.trim(),
+          },
+        ])
+        .select()
+        .single();
+
+      if (storeError) {
+        toast.error(storeError.message || "Failed to create store");
         setLoading(false);
         return;
+      }
+
+      // Create staff record for store owner
+      const { data: staffData, error: staffError } = await supabase
+        .from("staff")
+        .insert([
+          {
+            store_id: storeData.id,
+            user_id: user.id,
+            email: user.email,
+            role: "Store Owner",
+          },
+        ])
+        .select();
+
+      if (staffError) {
+        console.error('Staff insert error:', staffError);
+        toast.error(staffError.message || "Failed to add store owner to staff");
+        setLoading(false);
+        return;
+      }
+
+      // Update user profile with the admin name (create if doesn't exist)
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .upsert(
+          { id: user.id, full_name: adminName.trim() },
+          { onConflict: "id" }
+        );
+
+      if (profileError) {
+        console.error('Profile update error:', profileError);
       }
 
       // Also save to localStorage for quick access

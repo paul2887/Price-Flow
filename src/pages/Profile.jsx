@@ -1,80 +1,106 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "../utils/supabaseClient";
+import { useAuth } from "../context/AuthContext";
 import userCircleIcon from "../assets/icons/user-circle-svgrepo-com.svg";
 import backIcon from "../assets/icons/back-svgrepo-com.svg";
 import LogoutModal from "../components/LogoutModal";
+import RoleBadge from "../components/RoleBadge";
 import "../styles/pages/Profile.css";
 
 export default function Profile() {
   const navigate = useNavigate();
+  const { user: authUser } = useAuth();
+  // Role is now managed by RoleContext, used by RoleBadge component
   const [user, setUser] = useState(null);
   const [adminName, setAdminName] = useState("");
   const [editingName, setEditingName] = useState(false);
   const [tempName, setTempName] = useState("");
-  const [userRole, setUserRole] = useState("Store Admin");
   const [storeName, setStoreName] = useState("");
   const [loading, setLoading] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isInvitedMember, setIsInvitedMember] = useState(false);
 
   useEffect(() => {
+    const loadProfileData = async () => {
+      try {
+        // Check if user is an invited member
+        if (authUser?.isInvitedMember) {
+          const userFullName = localStorage.getItem("userFullName");
+          const userEmail = localStorage.getItem("userEmail");
+          const storeId = localStorage.getItem("storeId");
+          let storedStoreName = localStorage.getItem("storeName");
+
+          setUser({ email: userEmail, isInvitedMember: true });
+          setAdminName(userFullName || "");
+          setStoreName(storedStoreName || "");
+          setIsInvitedMember(true);
+          
+          // If storeName is not in localStorage, fetch it from database
+          if (!storedStoreName && storeId) {
+            try {
+              const { data: storeData } = await supabase
+                .from("stores")
+                .select("store_name, admin_name")
+                .eq("id", storeId)
+                .single();
+
+              if (storeData) {
+                setStoreName(storeData.store_name || "");
+                setAdminName(storeData.admin_name || "");
+                localStorage.setItem("storeName", storeData.store_name);
+                localStorage.setItem("adminName", storeData.admin_name);
+              }
+            } catch (err) {
+              console.error("Error fetching store data:", err);
+            }
+          }
+          
+          setLoading(false);
+          return;
+        }
+
+        // Regular Supabase auth user
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser();
+
+        if (error || !user) {
+          navigate("/signin");
+          return;
+        }
+
+        setUser(user);
+
+        // Fetch latest data from Supabase stores table
+        const { data: storeData, error: storeError } = await supabase
+          .from("stores")
+          .select("admin_name, store_name")
+          .eq("user_id", user.id)
+          .single();
+
+        if (!storeError && storeData) {
+          setAdminName(storeData.admin_name || "");
+          setStoreName(storeData.store_name || "");
+          localStorage.setItem("adminName", storeData.admin_name || "");
+          localStorage.setItem("storeName", storeData.store_name || "");
+        } else {
+          // Fall back to localStorage if query fails
+          const cachedStoreName = localStorage.getItem("storeName");
+          const cachedAdminName = localStorage.getItem("adminName");
+          if (cachedStoreName) setStoreName(cachedStoreName);
+          if (cachedAdminName) setAdminName(cachedAdminName);
+        }
+      } catch (err) {
+        console.error("Profile load error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadProfileData();
-  }, []);
-
-  const loadProfileData = async () => {
-    try {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
-
-      if (error || !user) {
-        navigate("/signin");
-        return;
-      }
-
-      setUser(user);
-
-      // Fetch latest data from Supabase stores table
-      const { data: storeData, error: storeError } = await supabase
-        .from("stores")
-        .select("admin_name, store_name")
-        .eq("user_id", user.id)
-        .single();
-
-      if (!storeError && storeData) {
-        setAdminName(storeData.admin_name || "");
-        setStoreName(storeData.store_name || "");
-        localStorage.setItem("adminName", storeData.admin_name || "");
-        localStorage.setItem("storeName", storeData.store_name || "");
-      } else {
-        // Fall back to localStorage if query fails
-        const cachedStoreName = localStorage.getItem("storeName");
-        const cachedAdminName = localStorage.getItem("adminName");
-        if (cachedStoreName) setStoreName(cachedStoreName);
-        if (cachedAdminName) setAdminName(cachedAdminName);
-      }
-
-      // Get role from staff table
-      const { data: staffData } = await supabase
-        .from("staff")
-        .select("role")
-        .eq("user_id", user.id)
-        .single();
-
-      if (staffData) {
-        setUserRole(staffData.role || "Store Admin");
-        localStorage.setItem("userRole", staffData.role || "Store Admin");
-      } else {
-        const cachedUserRole = localStorage.getItem("userRole");
-        if (cachedUserRole) setUserRole(cachedUserRole);
-      }
-    } catch (err) {
-      console.error("Profile load error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [navigate, authUser]);
 
   const handleLogout = async () => {
     setShowLogoutModal(true);
@@ -102,14 +128,34 @@ export default function Profile() {
     if (!tempName.trim()) return;
 
     try {
+      // For invited members - update staff table
+      if (isInvitedMember) {
+        const userEmail = localStorage.getItem("userEmail");
+        
+        const { error } = await supabase
+          .from("staff")
+          .update({ full_name: tempName })
+          .eq("email", userEmail);
+
+        if (error) {
+          console.error("Error updating name in Supabase:", error);
+          alert("Failed to save name. Please try again.");
+          return;
+        }
+
+        localStorage.setItem("userFullName", tempName);
+        setAdminName(tempName);
+        setEditingName(false);
+        return;
+      }
+
+      // For regular Supabase auth users - update stores table
       const { data: { user: currentUser } } = await supabase.auth.getUser();
 
       if (!currentUser) {
         console.error("User not authenticated");
         return;
       }
-
-      console.log("Saving name:", tempName, "for user:", currentUser.id);
 
       // Update localStorage FIRST to ensure it persists
       localStorage.setItem("adminName", tempName);
@@ -128,7 +174,6 @@ export default function Profile() {
         return;
       }
 
-      console.log("Name saved successfully:", data);
       setEditingName(false);
     } catch (err) {
       console.error("Save name error:", err);
@@ -165,7 +210,7 @@ export default function Profile() {
               <img src={userCircleIcon} alt="User" className="profile-icon" />
               <div className="profile-name-section">
                 <h2>{adminName || "User"}</h2>
-                <span className="profile-role">{userRole}</span>
+                <RoleBadge useLocalStorage={true} />
               </div>
             </div>
             <div className="info-item-container">
