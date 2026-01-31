@@ -20,6 +20,17 @@ export async function acceptInvitation(token, userName, userEmail, passwordHash)
       throw new Error('Invitation has expired');
     }
 
+    // Check if email already exists in ANY store (prevent duplicate emails across all stores)
+    const { data: existingStaff, error: checkError } = await supabase
+      .from('staff')
+      .select('id, email')
+      .eq('email', userEmail)
+      .single();
+
+    if (!checkError && existingStaff) {
+      throw new Error('This email is already registered as a store member. Each user can only have one account.');
+    }
+
     // Create staff record with email and password hash (no user_id for invited members)
     const { error: staffError } = await supabase
       .from('staff')
