@@ -1,4 +1,5 @@
 import { supabase } from '../utils/supabaseClient';
+import { formatPrice } from '../utils/formatPrice';
 import '../styles/components/ProductStatusModal.css';
 
 export default function ProductStatusModal({ isOpen, onClose, product, onStatusChange }) {
@@ -35,7 +36,15 @@ export default function ProductStatusModal({ isOpen, onClose, product, onStatusC
         </button>
 
         <h3 className="modal-header">Product Status</h3>
-        <p className="modal-subtitle">{product.name}</p>
+        
+        {/* Product Display */}
+        <div className="status-product-display">
+          <div className="status-product-left">
+            <p className="status-product-name">{product.name}</p>
+            <p className="status-product-size">{product.size}</p>
+          </div>
+          <p className="status-product-price">₦{formatPrice(product.price)}</p>
+        </div>
         
         <div className="status-buttons">
           <button 
