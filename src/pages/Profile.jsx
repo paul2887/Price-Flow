@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "../utils/supabaseClient";
 import { useAuth } from "../context/AuthContext";
 import userCircleIcon from "../assets/icons/user-circle-svgrepo-com.svg";
-import backIcon from "../assets/icons/back-svgrepo-com.svg";
 import LogoutModal from "../components/LogoutModal";
 import RoleBadge from "../components/RoleBadge";
 import "../styles/pages/Profile.css";

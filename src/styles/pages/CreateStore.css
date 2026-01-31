@@ -79,15 +79,14 @@
 
 .cs-input-field {
   position: relative;
-  display: flex;
-  align-items: center;
+  display: block;
 }
 
-.cs-input-icon {
+.cs-input-field > svg {
   position: absolute;
   left: 1.5rem;
-  width: 20px;
-  height: 28px;
+  top: 50%;
+  transform: translateY(-50%);
   pointer-events: none;
 }
 

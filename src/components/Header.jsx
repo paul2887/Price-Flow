@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import userCircleIcon from '../assets/icons/user-circle-svgrepo-com.svg';
 import RoleBadge from './RoleBadge';
 import '../styles/components/Header.css';
 

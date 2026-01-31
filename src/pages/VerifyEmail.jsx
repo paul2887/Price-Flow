@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { supabase } from '../utils/supabaseClient';
 import '../styles/pages/VerifyEmail.css';
-import backIcon from '../assets/icons/back-svgrepo-com.svg';
 import verifyEmailImage from '../assets/verify email page image.png';
 
 
