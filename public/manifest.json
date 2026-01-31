@@ -1,0 +1,38 @@
+{
+  "name": "Price Flow",
+  "short_name": "PriceFlow",
+  "description": "Manage and track product prices across multiple stores",
+  "start_url": "/",
+  "display": "standalone",
+  "scope": "/",
+  "orientation": "portrait-primary",
+  "theme_color": "#1E88E5",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/favIcon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favIcon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favIcon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/favIcon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

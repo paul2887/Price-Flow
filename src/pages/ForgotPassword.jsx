@@ -61,7 +61,7 @@ export default function ForgotPassword({ onBack }) {
 
       // Store owner - send Supabase reset
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
-        redirectTo: 'http://localhost:5173/reset-password'
+        redirectTo: `${window.location.origin}/reset-password`
       });
 
       if (!resetError) {
