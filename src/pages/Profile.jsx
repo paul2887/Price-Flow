@@ -7,6 +7,24 @@ import LogoutModal from "../components/LogoutModal";
 import RoleBadge from "../components/RoleBadge";
 import "../styles/pages/Profile.css";
 
+const BackIcon = () => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M15 18L9 12L15 6"
+      stroke="#000000"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 export default function Profile() {
   const navigate = useNavigate();
   const { user: authUser } = useAuth();
@@ -161,7 +179,7 @@ export default function Profile() {
       setAdminName(tempName);
 
       // Update in stores table
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("stores")
         .update({ admin_name: tempName })
         .eq("user_id", currentUser.id)
@@ -197,7 +215,7 @@ export default function Profile() {
           onClick={() => navigate(-1)}
           title="Go Back"
         >
-          <img src={backIcon} alt="Back" className="back-icon" />
+          <BackIcon />
         </button>
         <h1>My Profile</h1>
       </header>

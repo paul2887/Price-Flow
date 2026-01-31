@@ -64,7 +64,7 @@ export default function CreateStore() {
       }
 
       // Check if user already has a store
-      const { data: existingStore, error: checkError } = await supabase
+      const { data: existingStore } = await supabase
         .from("stores")
         .select("id")
         .eq("user_id", user.id)
@@ -96,7 +96,7 @@ export default function CreateStore() {
       }
 
       // Create staff record for store owner
-      const { data: staffData, error: staffError } = await supabase
+      const { error: staffError } = await supabase
         .from("staff")
         .insert([
           {

@@ -4,6 +4,23 @@ import { supabase } from '../utils/supabaseClient';
 import '../styles/pages/VerifyEmail.css';
 import verifyEmailImage from '../assets/verify email page image.png';
 
+const BackIcon = () => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M15 18L9 12L15 6"
+      stroke="#000000"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
 
 export default function VerifyEmail({ email: propEmail, onBack }) {
   // If propEmail is empty, try to get from localStorage
@@ -62,7 +79,7 @@ export default function VerifyEmail({ email: propEmail, onBack }) {
       {/* Top Section: Back Button + Image */}
       <div className="verify-email-top">
         <button className="back-btn" onClick={onBack} disabled={loading}>
-          <img src={backIcon} alt="Back" />
+          <BackIcon />
         </button>
         <img src={verifyEmailImage} alt="Verify Email" className="verify-email-page-image" />
       </div>
