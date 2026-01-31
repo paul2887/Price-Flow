@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import searchIcon from '../assets/icons/search-svgrepo-com.svg';
 import '../styles/components/ProductHeader.css';
 
 export default function ProductHeader({ onSearchChange, searchQuery }) {

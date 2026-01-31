@@ -2,9 +2,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { supabase } from '../utils/supabaseClient';
 import '../styles/pages/Signup.css';
-import backIcon from '../assets/icons/back-svgrepo-com.svg';
 import signupPageImage from '../assets/Signup page image.png';
-import mailIcon from '../assets/icons/mail-alt-svgrepo-com.svg';
 
 export default function Signup({ onProceed, onSigninClick, onBack }) {
   const [email, setEmail] = useState('');
