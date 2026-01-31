@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { supabase } from "../utils/supabaseClient";
 import "../styles/components/AddStoreMemberModal.css";
 
-export default function AddStoreMemberModal({ isOpen, onClose, onAdd, storeId, storeName }) {
+export default function AddStoreMemberModal({ isOpen, onClose, storeId, storeName }) {
   const [view, setView] = useState(null); // null | 'email' | 'link'
   const [inviteLink, setInviteLink] = useState(null);
   const [email, setEmail] = useState("");
@@ -22,7 +22,7 @@ export default function AddStoreMemberModal({ isOpen, onClose, onAdd, storeId, s
       expiresAt.setDate(expiresAt.getDate() + 7);
 
       // Create invitation record in database
-      const { data: invitationData, error: insertError } = await supabase
+      const { error: insertError } = await supabase
         .from('store_invitations')
         .insert({
           store_id: storeId,
@@ -63,12 +63,6 @@ export default function AddStoreMemberModal({ isOpen, onClose, onAdd, storeId, s
     }
   };
 
-  const handleOpenLink = () => {
-    if (inviteLink) {
-      window.open(inviteLink.link, '_blank');
-    }
-  };
-
   const handleBack = () => {
     setView(null);
     setInviteLink(null);
@@ -85,7 +79,7 @@ export default function AddStoreMemberModal({ isOpen, onClose, onAdd, storeId, s
       expiresAt.setDate(expiresAt.getDate() + 7);
 
       // Create new invitation record in database
-      const { data: invitationData, error: insertError } = await supabase
+      const { error: insertError } = await supabase
         .from('store_invitations')
         .insert({
           store_id: storeId,
@@ -121,10 +115,6 @@ export default function AddStoreMemberModal({ isOpen, onClose, onAdd, storeId, s
   const handleLinkMethod = () => {
     setView("link");
     generateInviteLink();
-  };
-
-  const handleEmailMethod = () => {
-    setView("email");
   };
 
   const handleClose = () => {

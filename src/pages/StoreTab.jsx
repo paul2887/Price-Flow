@@ -220,7 +220,7 @@ export default function StoreTab({ storeId, isVisible, refreshKey }) {
     }
   }, [isVisible, storeId, refreshKey]);
 
-  const handleAddMember = (formData) => {
+  const handleAddMember = () => {
     // TODO: Save to database/state
   };
 
@@ -312,7 +312,6 @@ export default function StoreTab({ storeId, isVisible, refreshKey }) {
         });
 
         setStoreMembers(sortMembersWithOwnerFirst(mappedMembers));
-      } else {
       }
     } catch (err) {
       console.error('Error updating member role:', err);
