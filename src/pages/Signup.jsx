@@ -55,7 +55,7 @@ export default function Signup({ onProceed, onSigninClick, onBack }) {
         email: email.trim(),
         password: Math.random().toString(36).slice(-16), // Generate random password
         options: {
-          emailRedirectTo: 'http://localhost:5173/email-verified',
+          emailRedirectTo: `${window.location.origin}/email-verified`,
         },
       });
 

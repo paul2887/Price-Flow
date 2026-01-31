@@ -55,7 +55,7 @@ export default function VerifyEmail({ email: propEmail, onBack }) {
         type: 'signup',
         email: email,
         options: {
-          emailRedirectTo: 'http://localhost:5173/email-verified',
+          emailRedirectTo: `${window.location.origin}/email-verified`,
         },
       });
 
