@@ -30,26 +30,46 @@ export default function ForgotPassword({ onBack }) {
     }
 
     try {
-      // Send password reset email via Supabase
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: 'http://localhost:5173/reset-password'
-      });
+      const trimmedEmail = email.trim();
 
-      if (error) {
-        toast.error(error.message || 'Failed to send reset link');
+      // Check staff table for the email
+      const { data: staffMember } = await supabase
+        .from('staff')
+        .select('id, role')
+        .eq('email', trimmedEmail)
+        .single();
+
+      // Email not found anywhere
+      if (!staffMember) {
+        toast.error('Email not found');
         setLoading(false);
         return;
       }
 
-      toast.success('Reset link sent to your email');
-      setEmail('');
+      // If staff but NOT store owner (admin/sales person)
+      if (staffMember.role !== 'Store Owner') {
+        toast.error('Contact your store owner to reset your password');
+        setLoading(false);
+        return;
+      }
+
+      // Store owner - send Supabase reset
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
+        redirectTo: 'http://localhost:5173/reset-password'
+      });
+
+      if (!resetError) {
+        toast.success('Reset link sent to your email');
+        setEmail('');
+      } else {
+        toast.error('Failed to send reset link');
+      }
+      setLoading(false);
     } catch (err) {
       console.error('Password reset error:', err);
       toast.error('An error occurred. Please try again.');
       setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (

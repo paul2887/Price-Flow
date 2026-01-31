@@ -64,7 +64,41 @@ export default function Signin({ onSignupClick, onForgotPassword }) {
         localStorage.removeItem('signupEmail');
         localStorage.removeItem('signupUserId');
         
-        // Check if user has a store
+        // DEFENSIVE CHECK: Before checking stores table, check if user is an invited member
+        // This handles the case where a password-reset invited member logs in with Supabase auth
+        const { data: staffMember, error: staffError } = await supabase
+          .from('staff')
+          .select('id, store_id, role, full_name')
+          .eq('email', email)
+          .single();
+
+        if (!staffError && staffMember) {
+          // User is an invited member - use their staff record information
+          localStorage.setItem('userId', email);
+          localStorage.setItem('userEmail', email);
+          localStorage.setItem('userFullName', staffMember.full_name || '');
+          localStorage.setItem('userRole', staffMember.role);
+          localStorage.setItem('storeId', staffMember.store_id);
+          
+          // Get store details for invited member
+          const { data: storeData } = await supabase
+            .from('stores')
+            .select('store_name, admin_name')
+            .eq('id', staffMember.store_id)
+            .single();
+
+          if (storeData) {
+            localStorage.setItem('storeName', storeData.store_name);
+            localStorage.setItem('adminName', storeData.admin_name);
+          }
+
+          await checkAuth();
+          navigate('/dashboard');
+          setLoading(false);
+          return;
+        }
+
+        // Not a staff member - check if user has a store (store owner)
         const { data: stores, error: storeError } = await supabase
           .from('stores')
           .select('store_name, admin_name')
@@ -79,6 +113,7 @@ export default function Signin({ onSignupClick, onForgotPassword }) {
         } else {
           navigate('/create-store');
         }
+        setLoading(false);
         return;
       }
 

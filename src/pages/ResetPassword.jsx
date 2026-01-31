@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { supabase } from '../utils/supabaseClient';
 import { Eye, EyeOff } from 'lucide-react';
+import bcryptjs from 'bcryptjs';
 import '../styles/pages/SetPassword.css';
 import signupPageImage from '../assets/signup page image.png';
 import passwordIcon from '../assets/icons/password-svgrepo-com.svg';
 
 export default function ResetPassword() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -17,6 +19,10 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const [sessionValid, setSessionValid] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [resetType, setResetType] = useState(null); // 'store-owner' or 'staff'
+  const [staffEmail, setStaffEmail] = useState(null);
+
+  const token = searchParams.get('token');
 
   useEffect(() => {
     checkSession();
@@ -25,7 +31,40 @@ export default function ResetPassword() {
 
   const checkSession = async () => {
     try {
-      // Check if user has a valid session (from reset link)
+      // Check if token param exists (staff reset)
+      if (token) {
+        const { data: resetToken, error: tokenError } = await supabase
+          .from('password_reset_tokens')
+          .select('email, used, expires_at')
+          .eq('token', token)
+          .single();
+
+        if (tokenError || !resetToken) {
+          toast.error('Invalid reset token');
+          navigate('/forgot-password');
+          return;
+        }
+
+        if (resetToken.used) {
+          toast.error('This reset link has already been used');
+          navigate('/forgot-password');
+          return;
+        }
+
+        if (new Date(resetToken.expires_at) < new Date()) {
+          toast.error('Reset link has expired');
+          navigate('/forgot-password');
+          return;
+        }
+
+        setResetType('staff');
+        setStaffEmail(resetToken.email);
+        setSessionValid(true);
+        setChecking(false);
+        return;
+      }
+
+      // No token, check for Supabase session (store owner)
       const { data: { session }, error } = await supabase.auth.getSession();
       
       if (error || !session) {
@@ -34,6 +73,7 @@ export default function ResetPassword() {
         return;
       }
 
+      setResetType('store-owner');
       setSessionValid(true);
     } catch (err) {
       console.error('Session check error:', err);
@@ -74,19 +114,98 @@ export default function ResetPassword() {
     try {
       setLoading(true);
 
-      // Update password in Supabase
-      const { error } = await supabase.auth.updateUser({
-        password: password
-      });
+      // Handle staff member reset (custom token)
+      if (resetType === 'staff' && token && staffEmail) {
+        // Hash password for staff table
+        const passwordHash = bcryptjs.hashSync(password, 10);
 
-      if (error) {
-        toast.error(error.message || 'Failed to reset password');
+        // Update staff password_hash
+        const { error: updateError } = await supabase
+          .from('staff')
+          .update({ password_hash: passwordHash })
+          .eq('email', staffEmail);
+
+        if (updateError) {
+          toast.error('Failed to update password');
+          setLoading(false);
+          return;
+        }
+
+        // Mark token as used
+        const { error: markError } = await supabase
+          .from('password_reset_tokens')
+          .update({ used: true })
+          .eq('token', token);
+
+        if (markError) {
+          console.error('Error marking token as used:', markError);
+        }
+
+        toast.success('Password reset successfully!');
+        navigate('/signin');
         setLoading(false);
         return;
       }
 
-      toast.success('Password reset successfully!');
-      navigate('/signin');
+      // Handle store owner reset (Supabase session)
+      if (resetType === 'store-owner') {
+        // Get current user's email
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        
+        if (userError || !user) {
+          toast.error('Session error. Please try again.');
+          setLoading(false);
+          return;
+        }
+
+        const userEmail = user.email;
+
+        // Update password in Supabase
+        const { error } = await supabase.auth.updateUser({
+          password: password
+        });
+
+        if (error) {
+          toast.error(error.message || 'Failed to reset password');
+          setLoading(false);
+          return;
+        }
+
+        // Check if this user is an invited member (exists in staff table)
+        const { data: staffMember, error: staffError } = await supabase
+          .from('staff')
+          .select('id, store_id')
+          .eq('email', userEmail)
+          .single();
+
+        // If user is an invited member, save their store context and navigate to dashboard
+        if (!staffError && staffMember) {
+          localStorage.setItem('userId', userEmail);
+          localStorage.setItem('storeId', staffMember.store_id);
+          
+          // Fetch store name for invited member
+          const { data: store, error: storeError } = await supabase
+            .from('stores')
+            .select('store_name')
+            .eq('id', staffMember.store_id)
+            .single();
+
+          if (!storeError && store) {
+            localStorage.setItem('storeName', store.store_name);
+          }
+
+          toast.success('Password reset successfully!');
+          navigate('/dashboard');
+          setLoading(false);
+          return;
+        }
+
+        // If not an invited member, they're a store owner - go to signin to complete auth
+        toast.success('Password reset successfully!');
+        navigate('/signin');
+        setLoading(false);
+        return;
+      }
     } catch (err) {
       console.error('Password reset error:', err);
       toast.error('Failed to reset password. Please try again.');
