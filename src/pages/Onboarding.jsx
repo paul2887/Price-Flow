@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react"
-import "../styles/pages/onboarding.css"
+import "../styles/pages/Onboarding.css"
 import QuickPriceImage from "../assets/Quick Price Search.png"
 import AdminControlImage from "../assets/Admin Control PNG.png"
 import StaffAccessImage from "../assets/Staff Access.png"
