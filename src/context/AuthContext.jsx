@@ -9,31 +9,37 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    checkAuth();
+    const initAuth = async () => {
+      // Complete initial auth check first to avoid race condition
+      await checkAuth();
 
-    // Subscribe to auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (session?.user) {
-          setUser(session.user);
-          setIsAuthenticated(true);
-        } else {
-          // Check if user is invited member logged in via localStorage
-          const userEmail = localStorage.getItem('userEmail');
-          if (userEmail) {
-            setUser({ email: userEmail, isInvitedMember: true });
+      // Only then subscribe to future auth changes
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        (event, session) => {
+          if (session?.user) {
+            setUser(session.user);
             setIsAuthenticated(true);
           } else {
-            setUser(null);
-            setIsAuthenticated(false);
+            // Check if user is invited member logged in via localStorage
+            const userEmail = localStorage.getItem('userEmail');
+            if (userEmail) {
+              setUser({ email: userEmail, isInvitedMember: true });
+              setIsAuthenticated(true);
+            } else {
+              setUser(null);
+              setIsAuthenticated(false);
+            }
           }
+          setLoading(false);
         }
-        setLoading(false);
-      }
-    );
+      );
 
-    return () => subscription?.unsubscribe();
+      return () => subscription?.unsubscribe();
+    };
+
+    initAuth();
   }, []);
+
 
   const checkAuth = async () => {
     try {
