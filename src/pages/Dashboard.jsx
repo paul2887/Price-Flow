@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { supabase } from '../utils/supabaseClient';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { useRole } from '../context/RoleContext';
 import Header from '../components/Header';
 import StoreHeader from '../components/StoreHeader';

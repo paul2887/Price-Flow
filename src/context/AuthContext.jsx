@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect } from 'react';
 import { supabase } from '../utils/supabaseClient';
+import { getFromIndexedDB, clearFromIndexedDB } from '../utils/indexedDBStorage';
 
 const AuthContext = createContext();
 
@@ -9,35 +10,55 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
+    let subscription;
+
     const initAuth = async () => {
       // Complete initial auth check first to avoid race condition
       await checkAuth();
 
+      if (!mounted) return;
+
       // Only then subscribe to future auth changes
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        (event, session) => {
+      const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (!mounted) return;
+
           if (session?.user) {
             setUser(session.user);
             setIsAuthenticated(true);
           } else {
-            // Check if user is invited member logged in via localStorage
+            // Check if user is invited member - first try localStorage, then IndexedDB
             const userEmail = localStorage.getItem('userEmail');
             if (userEmail) {
               setUser({ email: userEmail, isInvitedMember: true });
               setIsAuthenticated(true);
             } else {
-              setUser(null);
-              setIsAuthenticated(false);
+              // Try IndexedDB as fallback for mobile
+              const sessionData = await getFromIndexedDB();
+              if (mounted && sessionData?.userEmail) {
+                setUser({ email: sessionData.userEmail, isInvitedMember: true });
+                setIsAuthenticated(true);
+              } else if (mounted) {
+                setUser(null);
+                setIsAuthenticated(false);
+              }
             }
           }
           setLoading(false);
         }
       );
 
-      return () => subscription?.unsubscribe();
+      subscription = authSubscription;
     };
 
     initAuth();
+
+    return () => {
+      mounted = false;
+      subscription?.unsubscribe();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
@@ -53,13 +74,30 @@ export function AuthProvider({ children }) {
         return;
       }
 
-      // Check if user is invited member logged in via localStorage
-      const userEmail = localStorage.getItem('userEmail');
-      const userId = localStorage.getItem('userId');
+      // Check if user is invited member - try localStorage first
+      let userEmail = localStorage.getItem('userEmail');
+      let userId = localStorage.getItem('userId');
+
+      // If localStorage is empty, try IndexedDB (mobile fallback)
+      if (!userEmail || !userId) {
+        const sessionData = await getFromIndexedDB();
+        if (sessionData?.userEmail && sessionData?.userId) {
+          userEmail = sessionData.userEmail;
+          userId = sessionData.userId;
+          // Restore to localStorage as well
+          localStorage.setItem('userEmail', userEmail);
+          localStorage.setItem('userId', userId);
+          if (sessionData.userRole) localStorage.setItem('userRole', sessionData.userRole);
+          if (sessionData.storeId) localStorage.setItem('storeId', sessionData.storeId);
+          if (sessionData.storeName) localStorage.setItem('storeName', sessionData.storeName);
+          if (sessionData.adminName) localStorage.setItem('adminName', sessionData.adminName);
+          if (sessionData.userFullName) localStorage.setItem('userFullName', sessionData.userFullName);
+        }
+      }
 
       if (userEmail && userId) {
         // Verify the staff record still exists
-        const { data: staffRecord, error: staffError } = await supabase
+        const { data: staffRecord } = await supabase
           .from('staff')
           .select('email')
           .eq('email', userEmail)
@@ -73,13 +111,8 @@ export function AuthProvider({ children }) {
           });
           setIsAuthenticated(true);
         } else {
-          // Staff record doesn't exist, clear localStorage
-          localStorage.removeItem('userEmail');
-          localStorage.removeItem('userId');
-          localStorage.removeItem('userRole');
-          localStorage.removeItem('storeId');
-          localStorage.removeItem('storeName');
-          localStorage.removeItem('adminName');
+          // Staff record doesn't exist, clear all auth data
+          clearAuthData();
           setIsAuthenticated(false);
         }
       } else {
@@ -93,6 +126,20 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const clearAuthData = async () => {
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('storeId');
+    localStorage.removeItem('storeName');
+    localStorage.removeItem('adminName');
+    localStorage.removeItem('userFullName');
+    localStorage.removeItem('signupEmail');
+    localStorage.removeItem('signupUserId');
+    localStorage.removeItem('activeTab');
+    await clearFromIndexedDB();
+  };
+
   const logout = async () => {
     try {
       // Sign out from Supabase if logged in via auth
@@ -101,15 +148,8 @@ export function AuthProvider({ children }) {
       console.error('Logout error:', err);
     }
 
-    // Clear localStorage
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('storeId');
-    localStorage.removeItem('storeName');
-    localStorage.removeItem('adminName');
-    localStorage.removeItem('signupEmail');
-    localStorage.removeItem('signupUserId');
+    // Clear all auth data
+    await clearAuthData();
 
     setUser(null);
     setIsAuthenticated(false);
@@ -122,10 +162,4 @@ export function AuthProvider({ children }) {
   );
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
-  return context;
-}
+export { AuthContext };

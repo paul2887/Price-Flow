@@ -74,7 +74,7 @@ export default function Onboarding({ onGetStarted }) {
     >
       <div className="onboarding-content">
         <div className="onboarding-header">
-          <h1>MiniMart</h1>
+          <h1>Price Flow</h1>
           <p>Smart price management for your store</p>
         </div>
 

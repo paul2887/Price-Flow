@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "../utils/supabaseClient";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import userCircleIcon from "../assets/icons/user-circle-svgrepo-com.svg";
 import LogoutModal from "../components/LogoutModal";
 import RoleBadge from "../components/RoleBadge";

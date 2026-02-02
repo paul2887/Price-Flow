@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import bcryptjs from "bcryptjs";
 import { supabase } from "../utils/supabaseClient";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
+import { saveToIndexedDB } from "../utils/indexedDBStorage";
 import "../styles/pages/Signin.css";
 import signinPageImage from "../assets/Signin page image.png";
 
@@ -104,6 +105,20 @@ export default function Signin({ onSignupClick, onForgotPassword }) {
             localStorage.setItem('adminName', storeData.admin_name);
           }
 
+          // Save to IndexedDB for mobile persistence
+          const sessionData = {
+            userEmail: email,
+            userId: email,
+            userFullName: staffMember.full_name || '',
+            userRole: staffMember.role,
+            storeId: staffMember.store_id,
+            storeName: storeData?.store_name || '',
+            adminName: storeData?.admin_name || ''
+          };
+          
+          // Save to IndexedDB asynchronously (don't block)
+          saveToIndexedDB(sessionData).catch(err => console.warn('IndexedDB save failed:', err));
+
           await checkAuth();
           navigate('/dashboard');
           setLoading(false);
@@ -164,9 +179,10 @@ export default function Signin({ onSignupClick, onForgotPassword }) {
       localStorage.removeItem('signupUserId');
       
       // Set user info for invited member
-      localStorage.setItem('userId', email); // Use email as ID for invited members
+      const userId = email; // Use email as ID for invited members
+      localStorage.setItem('userId', userId);
       localStorage.setItem('userEmail', email);
-      localStorage.setItem('userFullName', staffMember.full_name || ''); // Store the invited member's full name
+      localStorage.setItem('userFullName', staffMember.full_name || '');
       localStorage.setItem('userRole', staffMember.role);
       localStorage.setItem('storeId', staffMember.store_id);
       
@@ -181,6 +197,20 @@ export default function Signin({ onSignupClick, onForgotPassword }) {
         localStorage.setItem('storeName', storeData.store_name);
         localStorage.setItem('adminName', storeData.admin_name);
       }
+
+      // Also save to IndexedDB for mobile persistence
+      const sessionData = {
+        userEmail: email,
+        userId: userId,
+        userFullName: staffMember.full_name || '',
+        userRole: staffMember.role,
+        storeId: staffMember.store_id,
+        storeName: storeData?.store_name || '',
+        adminName: storeData?.admin_name || ''
+      };
+      
+      // Save to IndexedDB asynchronously (don't block)
+      saveToIndexedDB(sessionData).catch(err => console.warn('IndexedDB save failed:', err));
 
       // Refresh auth context with new localStorage data
       await checkAuth();
