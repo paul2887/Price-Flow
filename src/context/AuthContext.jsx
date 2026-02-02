@@ -74,49 +74,66 @@ export function AuthProvider({ children }) {
         return;
       }
 
-      // Check if user is invited member - try localStorage first
-      let userEmail = localStorage.getItem('userEmail');
-      let userId = localStorage.getItem('userId');
-
-      // If localStorage is empty, try IndexedDB (mobile fallback)
-      if (!userEmail || !userId) {
-        const sessionData = await getFromIndexedDB();
-        if (sessionData?.userEmail && sessionData?.userId) {
-          userEmail = sessionData.userEmail;
-          userId = sessionData.userId;
-          // Restore to localStorage as well
-          localStorage.setItem('userEmail', userEmail);
-          localStorage.setItem('userId', userId);
-          if (sessionData.userRole) localStorage.setItem('userRole', sessionData.userRole);
-          if (sessionData.storeId) localStorage.setItem('storeId', sessionData.storeId);
-          if (sessionData.storeName) localStorage.setItem('storeName', sessionData.storeName);
-          if (sessionData.adminName) localStorage.setItem('adminName', sessionData.adminName);
-          if (sessionData.userFullName) localStorage.setItem('userFullName', sessionData.userFullName);
-        }
-      }
-
-      if (userEmail && userId) {
-        // Verify the staff record still exists
+      // For invited members (no Supabase session), check IndexedDB FIRST, then localStorage
+      let sessionData = await getFromIndexedDB();
+      
+      if (sessionData?.userEmail && sessionData?.userId) {
+        // Restore to localStorage as well for compatibility
+        localStorage.setItem('userEmail', sessionData.userEmail);
+        localStorage.setItem('userId', sessionData.userId);
+        if (sessionData.userRole) localStorage.setItem('userRole', sessionData.userRole);
+        if (sessionData.storeId) localStorage.setItem('storeId', sessionData.storeId);
+        if (sessionData.storeName) localStorage.setItem('storeName', sessionData.storeName);
+        if (sessionData.adminName) localStorage.setItem('adminName', sessionData.adminName);
+        if (sessionData.userFullName) localStorage.setItem('userFullName', sessionData.userFullName);
+        
+        // Verify the staff record still exists in database
         const { data: staffRecord } = await supabase
           .from('staff')
           .select('email')
-          .eq('email', userEmail)
+          .eq('email', sessionData.userEmail)
           .single();
 
         if (staffRecord) {
           setUser({
-            email: userEmail,
-            id: userId,
+            email: sessionData.userEmail,
+            id: sessionData.userId,
             isInvitedMember: true
           });
           setIsAuthenticated(true);
         } else {
           // Staff record doesn't exist, clear all auth data
-          clearAuthData();
+          await clearAuthData();
           setIsAuthenticated(false);
         }
       } else {
-        setIsAuthenticated(false);
+        // No IndexedDB data, try localStorage fallback
+        let userEmail = localStorage.getItem('userEmail');
+        let userId = localStorage.getItem('userId');
+
+        if (userEmail && userId) {
+          // Verify the staff record still exists
+          const { data: staffRecord } = await supabase
+            .from('staff')
+            .select('email')
+            .eq('email', userEmail)
+            .single();
+
+          if (staffRecord) {
+            setUser({
+              email: userEmail,
+              id: userId,
+              isInvitedMember: true
+            });
+            setIsAuthenticated(true);
+          } else {
+            // Staff record doesn't exist, clear all auth data
+            await clearAuthData();
+            setIsAuthenticated(false);
+          }
+        } else {
+          setIsAuthenticated(false);
+        }
       }
     } catch (err) {
       console.error('Auth check error:', err);

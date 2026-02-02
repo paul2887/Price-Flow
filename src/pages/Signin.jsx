@@ -105,7 +105,7 @@ export default function Signin({ onSignupClick, onForgotPassword }) {
             localStorage.setItem('adminName', storeData.admin_name);
           }
 
-          // Save to IndexedDB for mobile persistence
+          // Save to IndexedDB for mobile persistence - WAIT FOR THIS
           const sessionData = {
             userEmail: email,
             userId: email,
@@ -116,8 +116,8 @@ export default function Signin({ onSignupClick, onForgotPassword }) {
             adminName: storeData?.admin_name || ''
           };
           
-          // Save to IndexedDB asynchronously (don't block)
-          saveToIndexedDB(sessionData).catch(err => console.warn('IndexedDB save failed:', err));
+          // IMPORTANT: Await this - don't proceed until IndexedDB save completes
+          await saveToIndexedDB(sessionData);
 
           await checkAuth();
           navigate('/dashboard');
@@ -209,8 +209,8 @@ export default function Signin({ onSignupClick, onForgotPassword }) {
         adminName: storeData?.admin_name || ''
       };
       
-      // Save to IndexedDB asynchronously (don't block)
-      saveToIndexedDB(sessionData).catch(err => console.warn('IndexedDB save failed:', err));
+      // IMPORTANT: Await this - don't proceed until IndexedDB save completes
+      await saveToIndexedDB(sessionData);
 
       // Refresh auth context with new localStorage data
       await checkAuth();

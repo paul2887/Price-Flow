@@ -23,11 +23,18 @@ export const saveToIndexedDB = async (data) => {
     const store = transaction.objectStore(storeName);
     store.put(data, 'session');
     return new Promise((resolve, reject) => {
-      transaction.oncomplete = () => resolve();
-      transaction.onerror = () => reject(transaction.error);
+      transaction.oncomplete = () => {
+        console.log('✅ IndexedDB save SUCCESS:', data);
+        resolve();
+      };
+      transaction.onerror = () => {
+        console.error('❌ IndexedDB save ERROR:', transaction.error);
+        reject(transaction.error);
+      };
     });
   } catch (err) {
-    console.warn('IndexedDB save failed:', err);
+    console.error('❌ IndexedDB save FAILED:', err);
+    throw err;
   }
 };
 
@@ -38,11 +45,17 @@ export const getFromIndexedDB = async () => {
     const store = transaction.objectStore(storeName);
     const request = store.get('session');
     return new Promise((resolve, reject) => {
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        console.log('✅ IndexedDB read SUCCESS:', request.result);
+        resolve(request.result);
+      };
+      request.onerror = () => {
+        console.error('❌ IndexedDB read ERROR:', request.error);
+        reject(request.error);
+      };
     });
   } catch (err) {
-    console.warn('IndexedDB read failed:', err);
+    console.error('❌ IndexedDB read FAILED:', err);
     return null;
   }
 };
