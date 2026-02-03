@@ -61,11 +61,19 @@ export default function HomeTab({ storeName, storeId, isVisible }) {
 
   const handleAddProduct = async (formData) => {
     try {
+      // Fetch store name for the product
+      const { data: store } = await supabase
+        .from('stores')
+        .select('store_name')
+        .eq('id', storeId)
+        .single();
+
       const { error } = await supabase
         .from('products')
         .insert([
           {
             store_id: storeId,
+            store_name: store?.store_name || '',
             name: formData.productName,
             size: formData.productSize,
             price: parseFloat(formData.price),

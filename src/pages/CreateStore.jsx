@@ -103,6 +103,9 @@ export default function CreateStore() {
             store_id: storeData.id,
             user_id: user.id,
             email: user.email,
+            full_name: adminName.trim(),
+            store_name: storeName.trim(),
+            store_owner_name: adminName.trim(),
             role: "Store Owner",
           },
         ])
