@@ -27,7 +27,7 @@ const BackIcon = () => (
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { user: authUser } = useAuth();
+  const { user: authUser, logout } = useAuth();
   // Role is now managed by RoleContext, used by RoleBadge component
   const [user, setUser] = useState(null);
   const [adminName, setAdminName] = useState("");
@@ -124,10 +124,7 @@ export default function Profile() {
   };
 
   const handleConfirmLogout = async () => {
-    await supabase.auth.signOut();
-    localStorage.removeItem("storeName");
-    localStorage.removeItem("adminName");
-    localStorage.removeItem("userRole");
+    await logout();
     localStorage.removeItem("activeTab");
     navigate("/signin");
   };
