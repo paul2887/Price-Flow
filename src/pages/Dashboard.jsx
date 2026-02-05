@@ -16,7 +16,7 @@ import '../styles/pages/Dashboard.css';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { user: authUser, isAuthenticated, loading: authLoading } = useAuth();
+  const { user: authUser, isAuthenticated, loading: authLoading, logout } = useAuth();
   const { refreshKey, refreshRole, updateRole } = useRole();
   const [user, setUser] = useState(null);
   const [storeName, setStoreName] = useState('');
@@ -149,17 +149,8 @@ export default function Dashboard() {
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        toast.error('Failed to logout');
-        return;
-      }
-      
-      localStorage.removeItem('storeName');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('signupEmail');
-      localStorage.removeItem('signupUserId');
-      
+      await logout();
+      localStorage.removeItem('activeTab');
       toast.success('Logged out successfully');
       navigate('/signin');
     } catch (err) {
