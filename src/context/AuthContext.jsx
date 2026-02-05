@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect } from 'react';
 import { supabase } from '../utils/supabaseClient';
-import { getFromIndexedDB, clearFromIndexedDB } from '../utils/indexedDBStorage';
+import { getFromIndexedDB, saveToIndexedDB, clearFromIndexedDB } from '../utils/indexedDBStorage';
 
 const AuthContext = createContext();
 
@@ -30,14 +30,15 @@ export function AuthProvider({ children }) {
           } else {
             // Check if user is invited member - first try localStorage, then IndexedDB
             const userEmail = localStorage.getItem('userEmail');
-            if (userEmail) {
-              setUser({ email: userEmail, isInvitedMember: true });
+            const userId = localStorage.getItem('userId');
+            if (userEmail && userId) {
+              setUser({ email: userEmail, id: userId, isInvitedMember: true });
               setIsAuthenticated(true);
             } else {
               // Try IndexedDB as fallback for mobile
               const sessionData = await getFromIndexedDB();
-              if (mounted && sessionData?.userEmail) {
-                setUser({ email: sessionData.userEmail, isInvitedMember: true });
+              if (mounted && sessionData?.userEmail && sessionData?.userId) {
+                setUser({ email: sessionData.userEmail, id: sessionData.userId, isInvitedMember: true });
                 setIsAuthenticated(true);
               } else if (mounted) {
                 setUser(null);
@@ -77,8 +78,10 @@ export function AuthProvider({ children }) {
       // For invited members (no Supabase session), check IndexedDB FIRST, then localStorage
       let sessionData = await getFromIndexedDB();
       
-      if (sessionData?.userEmail && sessionData?.userId) {
-        // Restore to localStorage as well for compatibility
+      // Check if sessionData is actually valid (not empty object from failed retrieval)
+      if (sessionData && Object.keys(sessionData).length > 0 && sessionData.userEmail && sessionData.userId) {
+        
+        // IMMEDIATELY restore to localStorage BEFORE verification (for onAuthStateChange)
         localStorage.setItem('userEmail', sessionData.userEmail);
         localStorage.setItem('userId', sessionData.userId);
         if (sessionData.userRole) localStorage.setItem('userRole', sessionData.userRole);
@@ -95,19 +98,26 @@ export function AuthProvider({ children }) {
           .single();
 
         if (staffRecord) {
+          // Re-save to IndexedDB to keep it fresh for next PWA open
+          await saveToIndexedDB(sessionData);
+          
           setUser({
             email: sessionData.userEmail,
             id: sessionData.userId,
             isInvitedMember: true
           });
           setIsAuthenticated(true);
+          setLoading(false);
+          return;
         } else {
           // Staff record doesn't exist, clear all auth data
           await clearAuthData();
           setIsAuthenticated(false);
+          setLoading(false);
+          return;
         }
       } else {
-        // No IndexedDB data, try localStorage fallback
+        // No valid IndexedDB data, try localStorage fallback
         let userEmail = localStorage.getItem('userEmail');
         let userId = localStorage.getItem('userId');
 
@@ -120,19 +130,37 @@ export function AuthProvider({ children }) {
             .single();
 
           if (staffRecord) {
+            // Save to IndexedDB for next time
+            const fullSessionData = {
+              userEmail,
+              userId,
+              userFullName: localStorage.getItem('userFullName') || '',
+              userRole: localStorage.getItem('userRole') || '',
+              storeId: localStorage.getItem('storeId') || '',
+              storeName: localStorage.getItem('storeName') || '',
+              adminName: localStorage.getItem('adminName') || ''
+            };
+            await saveToIndexedDB(fullSessionData);
+            
             setUser({
               email: userEmail,
               id: userId,
               isInvitedMember: true
             });
             setIsAuthenticated(true);
+            setLoading(false);
+            return;
           } else {
             // Staff record doesn't exist, clear all auth data
             await clearAuthData();
             setIsAuthenticated(false);
+            setLoading(false);
+            return;
           }
         } else {
           setIsAuthenticated(false);
+          setLoading(false);
+          return;
         }
       }
     } catch (err) {

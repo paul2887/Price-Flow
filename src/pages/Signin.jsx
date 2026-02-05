@@ -136,6 +136,18 @@ export default function Signin({ onSignupClick, onForgotPassword }) {
           localStorage.setItem('storeName', stores.store_name);
           localStorage.setItem('adminName', stores.admin_name);
           localStorage.setItem('userId', data.user.id);
+          
+          // Save store owner session to IndexedDB for PWA persistence
+          const sessionData = {
+            userEmail: email,
+            userId: data.user.id,
+            userFullName: stores.admin_name || '',
+            storeName: stores.store_name || '',
+            adminName: stores.admin_name || ''
+          };
+          
+          await saveToIndexedDB(sessionData);
+          await checkAuth();
           navigate('/dashboard');
         } else {
           navigate('/create-store');
