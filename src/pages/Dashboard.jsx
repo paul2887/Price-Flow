@@ -128,6 +128,12 @@ export default function Dashboard() {
         localStorage.setItem('storeId', store.id);
         localStorage.setItem('storeName', store.store_name);
         localStorage.setItem('adminName', store.admin_name);
+      } else {
+        // No store found - user hasn't completed email verification flow yet
+        // Redirect to email-verified to complete password setup
+        navigate('/email-verified');
+        setLoading(false);
+        return;
       }
 
       if (!staffResponse.error && staffResponse.data) {

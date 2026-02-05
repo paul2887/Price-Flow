@@ -6,8 +6,12 @@ import '../styles/components/Header.css';
 export default function Header({ adminName }) {
   const navigate = useNavigate();
   
+  // For invited members (store admin, sales person), use their own name
+  // For store owner, use adminName
+  const displayName = localStorage.getItem('userFullName') || adminName || 'User';
+  
   // Extract only the first name (first word)
-  const firstName = adminName ? adminName.split(' ')[0] : 'User';
+  const firstName = displayName.split(' ')[0];
 
   const handleProfileClick = () => {
     navigate('/profile');

@@ -17,25 +17,14 @@ const openDB = () => {
 };
 
 export const saveToIndexedDB = async (data) => {
-  try {
-    const db = await openDB();
-    const transaction = db.transaction(storeName, 'readwrite');
-    const store = transaction.objectStore(storeName);
-    store.put(data, 'session');
-    return new Promise((resolve, reject) => {
-      transaction.oncomplete = () => {
-        console.log('✅ IndexedDB save SUCCESS:', data);
-        resolve();
-      };
-      transaction.onerror = () => {
-        console.error('❌ IndexedDB save ERROR:', transaction.error);
-        reject(transaction.error);
-      };
-    });
-  } catch (err) {
-    console.error('❌ IndexedDB save FAILED:', err);
-    throw err;
-  }
+  const db = await openDB();
+  const transaction = db.transaction(storeName, 'readwrite');
+  const store = transaction.objectStore(storeName);
+  store.put(data, 'session');
+  return new Promise((resolve, reject) => {
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+  });
 };
 
 export const getFromIndexedDB = async () => {
@@ -46,16 +35,17 @@ export const getFromIndexedDB = async () => {
     const request = store.get('session');
     return new Promise((resolve, reject) => {
       request.onsuccess = () => {
-        console.log('✅ IndexedDB read SUCCESS:', request.result);
-        resolve(request.result);
+        const result = request.result;
+        // Make sure we're returning the actual data, not undefined
+        if (result && typeof result === 'object' && Object.keys(result).length > 0) {
+          resolve(result);
+        } else {
+          resolve(null);
+        }
       };
-      request.onerror = () => {
-        console.error('❌ IndexedDB read ERROR:', request.error);
-        reject(request.error);
-      };
+      request.onerror = () => reject(request.error);
     });
-  } catch (err) {
-    console.error('❌ IndexedDB read FAILED:', err);
+  } catch {
     return null;
   }
 };
@@ -70,7 +60,7 @@ export const clearFromIndexedDB = async () => {
       transaction.oncomplete = () => resolve();
       transaction.onerror = () => reject(transaction.error);
     });
-  } catch (err) {
-    console.warn('IndexedDB clear failed:', err);
+  } catch {
+    // Silent fail on clear
   }
 };

@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";
 import { RoleProvider } from "./context/RoleContext";
 import { isMobileDevice, checkMobileOnResize } from "./utils/mobileCheck";
+import { getFromIndexedDB } from "./utils/indexedDBStorage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import Onboarding from "./pages/Onboarding";
@@ -39,6 +40,38 @@ function App() {
     const unsubscribe = checkMobileOnResize(setIsMobile);
     return unsubscribe;
   }, []);
+
+  // Check IndexedDB on startup and redirect to dashboard if session exists
+  useEffect(() => {
+    const checkSessionAndRedirect = async () => {
+      // Only check if we're on a public route (root, signup, signin)
+      const publicPaths = ['/', '/signup', '/signin', '/onboarding'];
+      if (!publicPaths.includes(window.location.pathname)) {
+        return; // Don't redirect if already on a protected route
+      }
+      
+      try {
+        const sessionData = await getFromIndexedDB();
+        
+        if (sessionData && sessionData.userEmail && sessionData.userId) {
+          navigate('/dashboard', { replace: true });
+        }
+      } catch (err) {
+        console.error('Error checking IndexedDB on startup:', err);
+      }
+    };
+    
+    checkSessionAndRedirect();
+  }, [navigate]);
+
+  // Handle email confirmation token from URL fragment
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash && hash.includes('access_token') && hash.includes('type=email_confirmation')) {
+      // Email confirmation token detected - navigate to email-verified
+      navigate('/email-verified', { replace: true });
+    }
+  }, [navigate]);
 
   const handleSignupProceed = (userEmail) => {
     setEmail(userEmail);

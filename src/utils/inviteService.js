@@ -33,7 +33,6 @@ export async function acceptInvitation(token, userName, userEmail, passwordHash)
     }
 
     // Fetch store details (name and admin_name)
-    console.log('Querying store with ID:', invitation.store_id);
     const { data: storeData, error: storeError } = await supabase
       .from('stores')
       .select('store_name, admin_name')
@@ -43,8 +42,6 @@ export async function acceptInvitation(token, userName, userEmail, passwordHash)
     if (storeError) {
       console.error('Error fetching store data:', storeError);
     }
-
-    console.log('Store data found:', storeData);
 
     // Generate UUID for invited member (they don't have Supabase auth)
     const invitedUserUUID = uuidv4();
